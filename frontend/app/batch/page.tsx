@@ -14,7 +14,7 @@ import { Zap, Plus, Trash2, RefreshCw, AtSign, ChevronDown, ChevronUp, Users } f
 interface Row { address: string; amount: string; resolvedFrom?: string; }
 interface BatchRecipientItem { account: string; amount: bigint; }
 
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 // ── Batch card with expandable recipients ─────────────────────────────────────
 function BatchCard({ b, client, contractAddress }: { b: BatchRecord; client: ReturnType<typeof usePublicClient>; contractAddress: `0x${string}` }) {

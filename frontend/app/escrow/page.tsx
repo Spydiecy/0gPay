@@ -10,9 +10,9 @@ import { useContractAddress } from '../hooks/useContract';
 import WalletGuard from '../components/WalletGuard';
 import Toast, { ToastType } from '../components/Toast';
 import { PRESET_TOKENS, getKnownToken } from '../lib/tokens';
-import { Lock, ArrowDownCircle, RotateCcw, RefreshCw, AtSign, Coins, CheckCircle2, ChevronDown, Check, PenLine, Wallet } from 'lucide-react';
+import { Lock, ArrowDownCircle, RotateCcw, RefreshCw, AtSign, Coins, CheckCircle2, Check, Wallet } from 'lucide-react';
 
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 // Minimal ERC-20 ABI — just what we need
 const ERC20_ABI = [
@@ -73,7 +73,6 @@ function EscrowContent() {
   const [tokenBalance,   setTokenBalance]   = useState<bigint | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<typeof PRESET_TOKENS[number] | null>(null);
-  const [tokenPickerOpen,setTokenPickerOpen]= useState(false);
   const [customToken,    setCustomToken]    = useState(false);
   // What kind of tx we're currently waiting on — so an approve receipt doesn't
   // get mistaken for a create receipt (that bug made the approval look lost).
@@ -157,7 +156,7 @@ function EscrowContent() {
   useEffect(() => {
     setTokenAddress(''); setTokenInfo(null); setAllowance(0n);
     setAmount(''); setRecipient(''); setResolvedRecipient(''); setRemarks('');
-    setSelectedPreset(null); setCustomToken(false); setTokenPickerOpen(false);
+    setSelectedPreset(null); setCustomToken(false);
   }, [mode]);
 
   const resolveIfUsername = useCallback(async (val: string) => {
@@ -194,23 +193,12 @@ function EscrowContent() {
   const selectPreset = useCallback((preset: typeof PRESET_TOKENS[number]) => {
     setSelectedPreset(preset);
     setCustomToken(false);
-    setTokenPickerOpen(false);
     setTokenAddress(preset.address);
     // Preset tokens are known ahead of time — skip the on-chain lookup entirely.
     setTokenInfo({ name: preset.name, symbol: preset.symbol, decimals: preset.decimals });
     readAllowance(preset.address);
     readTokenBalance(preset.address);
   }, [readAllowance, readTokenBalance]);
-
-  const selectCustomToken = useCallback(() => {
-    setSelectedPreset(null);
-    setCustomToken(true);
-    setTokenPickerOpen(false);
-    setTokenAddress('');
-    setTokenInfo(null);
-    setAllowance(0n);
-    setTokenBalance(null);
-  }, []);
 
   // ── Approve ────────────────────────────────────────────────────────────────
   const handleApprove = useCallback(async () => {
@@ -307,14 +295,6 @@ function EscrowContent() {
     finally { setLoading(false); }
   }, [writeContractAsync, contractAddress]);
 
-  // Close token picker dropdown when clicking outside
-  useEffect(() => {
-    if (!tokenPickerOpen) return;
-    const close = () => setTokenPickerOpen(false);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, [tokenPickerOpen]);
-
   // Re-read the allowance and balance when the connected wallet changes.
   useEffect(() => {
     if (mode === 'token' && tokenAddress) { readAllowance(); readTokenBalance(); }
@@ -364,110 +344,48 @@ function EscrowContent() {
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: 1, color: 'var(--foreground-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Token</label>
 
-                {/* Dropdown trigger */}
-                <div style={{ position: 'relative' }}>
-                  <button
-                    onClick={e => { e.stopPropagation(); setTokenPickerOpen(o => !o); }}
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '11px 14px', borderRadius: 10, border: '1px solid var(--border)',
-                      background: 'var(--surface-elevated)', cursor: 'pointer', transition: 'border-color 0.15s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = tokenPickerOpen ? 'var(--primary)' : 'var(--border)')}
-                  >
-                    {selectedPreset ? (
-                      <>
-                        <TokenLogo src={selectedPreset.logo} alt={selectedPreset.symbol} />
-                        <span style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 600, color: 'var(--foreground)' }}>{selectedPreset.label}</span>
-                      </>
-                    ) : customToken ? (
-                      <>
-                        <PenLine size={16} color="var(--foreground-muted)" style={{ flexShrink: 0 }} />
-                        <span style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 600, color: 'var(--foreground)' }}>Custom Token</span>
-                      </>
-                    ) : (
-                      <>
-                        <Coins size={16} color="var(--foreground-subtle)" style={{ flexShrink: 0 }} />
-                        <span style={{ flex: 1, textAlign: 'left', fontSize: 14, color: 'var(--foreground-subtle)' }}>Select a token…</span>
-                      </>
-                    )}
-                    <ChevronDown size={14} color="var(--foreground-muted)" style={{ flexShrink: 0, transform: tokenPickerOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
-                  </button>
-
-                  {/* Dropdown menu */}
-                  {tokenPickerOpen && (
-                    <div
-                      onClick={e => e.stopPropagation()}
-                      style={{
-                        position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
-                        background: 'var(--surface-card)', border: '1px solid var(--border)',
-                        borderRadius: 12, zIndex: 50, overflow: 'hidden',
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                      }}
-                    >
-                      {PRESET_TOKENS.map(preset => {
-                        const isActive = selectedPreset?.address === preset.address;
-                        return (
-                          <button
-                            key={preset.address}
-                            onClick={() => selectPreset(preset)}
-                            style={{
-                              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                              padding: '11px 14px', border: 'none', cursor: 'pointer',
-                              background: isActive ? 'rgba(45,212,191,0.1)' : 'transparent',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-elevated)'; }}
-                            onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                          >
-                            <TokenLogo src={preset.logo} alt={preset.symbol} />
-                            <div style={{ flex: 1, textAlign: 'left' }}>
-                              <p style={{ fontSize: 13, fontWeight: 700, color: isActive ? 'var(--primary)' : 'var(--foreground)', lineHeight: 1.2 }}>{preset.label}</p>
-                              <p style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--foreground-subtle)', lineHeight: 1.2, marginTop: 1 }}>{shortAddress(preset.address)}</p>
-                            </div>
-                            {isActive && <Check size={14} color="var(--primary)" />}
-                          </button>
-                        );
-                      })}
-                      <div style={{ height: 1, background: 'var(--border)' }} />
-                      <button
-                        onClick={selectCustomToken}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '11px 14px', border: 'none', cursor: 'pointer',
-                          background: customToken ? 'rgba(45,212,191,0.1)' : 'transparent',
-                          transition: 'background 0.15s',
-                        }}
-                        onMouseEnter={e => { if (!customToken) (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-elevated)'; }}
-                        onMouseLeave={e => { if (!customToken) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                      >
-                        <PenLine size={16} color={customToken ? 'var(--primary)' : 'var(--foreground-muted)'} style={{ flexShrink: 0 }} />
-                        <span style={{ flex: 1, textAlign: 'left', fontSize: 13, fontWeight: 600, color: customToken ? 'var(--primary)' : 'var(--foreground)' }}>Custom Token Address</span>
-                        {customToken && <Check size={14} color="var(--primary)" />}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Custom address input — only when "Custom Token" is selected */}
-                {customToken && (
-                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                    <input value={tokenAddress} onChange={e => { setTokenAddress(e.target.value); setTokenInfo(null); setAllowance(0n); setTokenBalance(null); }}
-                      onBlur={e => lookupToken(e.target.value)}
-                      placeholder="0x… ERC-20 token address"
-                      style={{ ...INPUT, flex: 1, fontFamily: 'monospace', fontSize: 12 }}
-                      onFocus={e => (e.target.style.borderColor = 'var(--primary)')}
-                    />
-                    <button onClick={() => lookupToken(tokenAddress)} disabled={tokenLookup || tokenAddress.length < 42}
-                      style={{ padding: '0 16px', borderRadius: 10, background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--foreground)', cursor: 'pointer', fontSize: 13, fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' }}>
-                      {tokenLookup ? '…' : 'Lookup'}
-                    </button>
+                {/* Preset tokens, when available, show up here as quick-select chips */}
+                {PRESET_TOKENS.length > 0 && (
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                    {PRESET_TOKENS.map(preset => {
+                      const isActive = selectedPreset?.address === preset.address;
+                      return (
+                        <button
+                          key={preset.address}
+                          onClick={() => selectPreset(preset)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 7,
+                            padding: '8px 12px', borderRadius: 999,
+                            border: `1px solid ${isActive ? 'var(--primary)' : 'var(--border)'}`,
+                            background: isActive ? 'rgba(45,212,191,0.1)' : 'var(--surface-elevated)',
+                            cursor: 'pointer', transition: 'all 0.15s',
+                          }}
+                        >
+                          <TokenLogo src={preset.logo} alt={preset.symbol} size={16} />
+                          <span style={{ fontSize: 13, fontWeight: 600, color: isActive ? 'var(--primary)' : 'var(--foreground)' }}>{preset.label}</span>
+                          {isActive && <Check size={12} color="var(--primary)" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
-                {/* Resolved token info — only shown for custom tokens (presets already show their name in the dropdown) */}
-                {customToken && tokenLookup && (
+                {/* Token lookup — paste any ERC-20 contract address */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={tokenAddress} onChange={e => { setTokenAddress(e.target.value); setSelectedPreset(null); setCustomToken(true); setTokenInfo(null); setAllowance(0n); setTokenBalance(null); }}
+                    onBlur={e => lookupToken(e.target.value)}
+                    placeholder="0x… ERC-20 token address"
+                    style={{ ...INPUT, flex: 1, fontFamily: 'monospace', fontSize: 12 }}
+                    onFocus={e => (e.target.style.borderColor = 'var(--primary)')}
+                  />
+                  <button onClick={() => lookupToken(tokenAddress)} disabled={tokenLookup || tokenAddress.length < 42}
+                    style={{ padding: '0 16px', borderRadius: 10, background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--foreground)', cursor: 'pointer', fontSize: 13, fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                    {tokenLookup ? '…' : 'Lookup'}
+                  </button>
+                </div>
+
+                {/* Resolved token info */}
+                {tokenLookup && (
                   <div style={{ marginTop: 8, padding: '10px 14px', borderRadius: 10, background: 'var(--surface-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <RefreshCw size={13} color="var(--foreground-muted)" style={{ animation: 'spin 1s linear infinite' }} />
                     <span style={{ fontSize: 12, color: 'var(--foreground-muted)' }}>Looking up token…</span>

@@ -5,19 +5,19 @@ import { parseEther, formatEther, createPublicClient, http } from 'viem';
 import { useParams } from 'next/navigation';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { PROTECTED_PAY_ABI } from '../../lib/abi';
-import { shortAddress, xLayerTestnet, CONTRACT_ADDRESSES, EXPLORER_URLS } from '../../lib/wagmi';
+import { shortAddress, botChainMainnet, CONTRACT_ADDRESSES, EXPLORER_URLS } from '../../lib/wagmi';
 import { useContractAddress } from '../../hooks/useContract';
 import Toast, { ToastType } from '../../components/Toast';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { generateInvoicePDF } from '../../lib/invoice';
 import { CheckCircle2, Ban, ArrowRight, ExternalLink, Shield, Copy, Check, Download, Share2 } from 'lucide-react';
 
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 // ── Dedicated read-only client — completely independent of wallet state ────────
-const testnetClient = createPublicClient({
-  chain: xLayerTestnet,
-  transport: http('https://testrpc.xlayer.tech/terigon'),
+const mainnetClient = createPublicClient({
+  chain: botChainMainnet,
+  transport: http('https://rpc.botchain.ai'),
 });
 
 interface LinkData {
@@ -112,11 +112,11 @@ export default function PayPage() {
     setNotFound(false);
 
     // Read-only client — works even with no wallet connected, on any browser.
-    const chainId = xLayerTestnet.id;
+    const chainId = botChainMainnet.id;
     const addr = CONTRACT_ADDRESSES[chainId];
 
     try {
-      const data = await testnetClient.readContract({
+      const data = await mainnetClient.readContract({
         address: addr, abi: PROTECTED_PAY_ABI,
         functionName: 'getPaymentLink', args: [linkId as `0x${string}`],
       }) as LinkData;
@@ -125,7 +125,7 @@ export default function PayPage() {
         setDetectedChainId(chainId);
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const user = await testnetClient.readContract({ address: addr, abi: PROTECTED_PAY_ABI, functionName: 'getUser', args: [data.creator as `0x${string}`] }) as any;
+          const user = await mainnetClient.readContract({ address: addr, abi: PROTECTED_PAY_ABI, functionName: 'getUser', args: [data.creator as `0x${string}`] }) as any;
           if (user?.username) setCreatorName(user.username);
         } catch { /* no username */ }
         setFetching(false);
@@ -169,7 +169,7 @@ export default function PayPage() {
   }, [link, linkId, remarks, customAmt, writeContractAsync, isConnected, detectedChainId, contractAddress]);
 
   const handleDownloadInvoice = useCallback((l: LinkData, txH?: string) => {
-    const explorer = detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[xLayerTestnet.id];
+    const explorer = detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[botChainMainnet.id];
     const amtDisplay = l.amount === 0n
       ? 'Custom'
       : `${parseFloat(formatEther(l.amount)).toFixed(4)} ${NATIVE}`;
@@ -291,7 +291,7 @@ export default function PayPage() {
               {effectiveTxHash && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, marginTop: 4 }}>
                   <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Transaction</span>
-                  <a href={`${detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[xLayerTestnet.id]}/tx/${effectiveTxHash}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`${detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[botChainMainnet.id]}/tx/${effectiveTxHash}`} target="_blank" rel="noopener noreferrer"
                     style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontFamily: 'monospace', color: 'var(--primary)', textDecoration: 'none' }}>
                     {shortAddress(effectiveTxHash)} <ExternalLink size={10} />
                   </a>
@@ -317,7 +317,7 @@ export default function PayPage() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <Shield size={11} color="var(--foreground-subtle)" />
-              <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by ProtectedPay · X Layer Testnet</span>
+              <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by ProtectedPay · BOT Chain Mainnet</span>
             </div>
           </div>
         </div>
@@ -433,7 +433,7 @@ export default function PayPage() {
           {/* Trust line */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Shield size={11} color="var(--foreground-subtle)" />
-            <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by ProtectedPay · X Layer Testnet</span>
+            <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by ProtectedPay · BOT Chain Mainnet</span>
           </div>
         </div>
       </div>

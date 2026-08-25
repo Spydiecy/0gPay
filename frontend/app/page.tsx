@@ -31,7 +31,7 @@ const FEATURES = [
   },
   {
     num: '02', tag: 'TOKEN ESCROW', icon: Coins,
-    title: 'Escrow any ERC-20 token, not just OKB.',
+    title: 'Escrow any ERC-20 token, not just BOT.',
     desc: 'Paste a token contract address, approve once, and lock any ERC-20 in the same trustless escrow flow. Claim or refund anytime.',    stat: 'ANY', statLabel: 'ERC-20',
     href: '/app',
   },
@@ -73,7 +73,7 @@ const FEATURES = [
   {
     num: '08', tag: 'SECURITY', icon: ShieldCheck,
     title: 'Smart contracts, not promises.',
-    desc: 'No admin key, no upgrade mechanism, no pause function. Every payment is enforced by EVM code on X Layer.',
+    desc: 'No admin key, no upgrade mechanism, no pause function. Every payment is enforced by EVM code on BOT Chain.',
     stat: '0', statLabel: 'MIDDLEMEN',
     href: '/app',
   },
@@ -89,7 +89,7 @@ const FEATURES = [
 const FAQS = [
   {
     q: 'What is a protected transfer?',
-    a: 'A protected transfer locks your OKB in a smart contract on the X Layer Testnet. The recipient can claim at any time. If they don\'t, you refund yourself — no third party holds the funds, only the contract.',
+    a: 'A protected transfer locks your BOT in a smart contract on BOT Chain Mainnet. The recipient can claim at any time. If they don\'t, you refund yourself — no third party holds the funds, only the contract.',
   },
   {
     q: 'Can I escrow ERC-20 tokens too?',
@@ -109,7 +109,7 @@ const FAQS = [
   },
   {
     q: 'What is PayBot?',
-    a: 'PayBot is an AI assistant built into the dashboard. You can ask it in plain English — "send 1 OKB to @alice as escrow" — and it will trigger the wallet confirmation popup instantly. It can also check your history, resolve usernames, and explain any feature.',
+    a: 'PayBot is an AI assistant built into the dashboard. You can ask it in plain English — "send 1 BOT to @alice as escrow" — and it will trigger the wallet confirmation popup instantly. It can also check your history, resolve usernames, and explain any feature.',
   },
   {
     q: 'What is the username registry?',
@@ -117,23 +117,15 @@ const FAQS = [
   },
   {
     q: 'What token is used for gas?',
-    a: 'All transactions use OKB, the native gas token of the X Layer Testnet. You need a small amount of OKB in your wallet to pay for gas — grab some free from the X Layer faucet.',
+    a: 'All transactions use BOT, the native gas token of BOT Chain Mainnet. You need a small amount of BOT in your wallet to pay for gas.',
   },
   {
     q: 'Is ProtectedPay non-custodial?',
-    a: 'Yes. ProtectedPay is a set of EVM smart contracts on X Layer. No company or individual holds your funds. No admin key, no upgrade mechanism, no pause function. The contract code is open source and auditable by anyone.',
+    a: 'Yes. ProtectedPay is a set of EVM smart contracts on BOT Chain. No company or individual holds your funds. No admin key, no upgrade mechanism, no pause function. The contract code is open source and auditable by anyone.',
   },
   {
     q: 'Which wallets are supported?',
-    a: 'ProtectedPay works with any EVM-compatible wallet: MetaMask, Rainbow, Coinbase Wallet, Trust Wallet, and more. Switch to the X Layer Testnet and connect.',
-  },
-  {
-    q: 'How do I get test funds?',
-    a: 'Click "Get Test Funds" in the dashboard sidebar, or visit the official X Layer faucet directly. It sends free OKB to your wallet on the testnet so you can try every feature at no cost.',
-  },
-  {
-    q: 'Will ProtectedPay be available on mainnet?',
-    a: 'Yes. ProtectedPay is currently live on the X Layer Testnet for this hackathon. We plan to deploy to X Layer mainnet once the hackathon concludes, so the same trustless payment features will be available with real funds.',
+    a: 'ProtectedPay works with any EVM-compatible wallet: MetaMask, Rainbow, Coinbase Wallet, Trust Wallet, and more. Switch to BOT Chain Mainnet and connect.',
   },
 ];
 
@@ -197,14 +189,14 @@ export default function HomePage() {
                 background: 'var(--primary)',
                 display: 'inline-block',
               }} />
-              X Layer Testnet · EVM Smart Contracts · OKB Gas · Mainnet Coming Soon
+              BOT Chain Mainnet · EVM Smart Contracts · BOT Gas
             </p>
             <h1 style={{ fontSize: 'clamp(44px, 7vw, 88px)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-3px', marginBottom: 28 }}>
               <span style={{ color: 'var(--foreground)', display: 'block' }}>Protected Payments</span>
-              <span className="text-gradient" style={{ display: 'block' }}>Built on X Layer</span>
+              <span className="text-gradient" style={{ display: 'block' }}>Built on BOT Chain</span>
             </h1>
             <p style={{ fontSize: 18, lineHeight: 1.7, color: 'var(--foreground-muted)', maxWidth: 520, margin: '0 auto 40px' }}>
-              Trustless escrow, group crowdfunding, and batch transfers — secured by EVM smart contracts on the X Layer Testnet. No intermediaries. No trust required. Mainnet launch coming after the hackathon.
+              Trustless escrow, group crowdfunding, and batch transfers — secured by EVM smart contracts on BOT Chain Mainnet. No intermediaries. No trust required.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
               <Link href="/app" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 999, background: 'var(--primary)', color: 'var(--primary-fg)', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
@@ -213,27 +205,6 @@ export default function HomePage() {
               >
                 Launch App <ArrowRight size={17} />
               </Link>
-              <a href="https://web3.okx.com/xlayer/faucet/xlayerfaucet" target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  padding: '14px 28px', borderRadius: 999,
-                  background: 'transparent', border: '1px solid var(--border)',
-                  color: 'var(--foreground-muted)', fontSize: 15, fontWeight: 600,
-                  textDecoration: 'none', transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--foreground)';
-                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--foreground)';
-                  (e.currentTarget as HTMLAnchorElement).style.background = 'var(--surface-elevated)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)';
-                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--foreground-muted)';
-                  (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-                }}
-              >
-                Get Test Funds
-              </a>
               <a href="https://x.com/protected_pay" target="_blank" rel="noopener noreferrer"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -290,13 +261,13 @@ export default function HomePage() {
       <section style={{ padding: '64px 0 72px', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
           <span style={{ fontSize: 14, color: 'var(--foreground-subtle)', fontWeight: 400 }}>Powered by</span>
-          <img src="/chain/xlayer.png" alt="X Layer"
+          <img src="/chain/bot.png" alt="BOT Chain"
             style={{ height: 48, width: 'auto', objectFit: 'contain', display: 'block' }}
             onError={e => {
               const el = e.currentTarget as HTMLImageElement;
               el.style.display = 'none';
               const span = document.createElement('span');
-              span.textContent = 'X Layer';
+              span.textContent = 'BOT Chain';
               span.style.cssText = 'font-size:28px;font-weight:800;color:var(--foreground);letter-spacing:-1px';
               el.parentElement?.appendChild(span);
             }}
@@ -357,7 +328,7 @@ export default function HomePage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)' }}>
             {[
-              { n: '01', title: 'Connect Wallet',    desc: 'Install MetaMask, Rainbow, or any EVM wallet. Connect to the X Layer Testnet in one click — the app will prompt you to add the chain.' },
+              { n: '01', title: 'Connect Wallet',    desc: 'Install MetaMask, Rainbow, or any EVM wallet. Connect to BOT Chain Mainnet in one click — the app will prompt you to add the chain.' },
               { n: '02', title: 'Register Username', desc: 'Claim a unique on-chain name. Others can send to @you instead of a long address.' },
               { n: '03', title: 'Send or Receive',   desc: 'Create an escrow, start a group payment, or batch-send to multiple addresses.' },
               { n: '04', title: 'Claim Funds',       desc: 'Recipients claim directly from the contract. Fully trustless. No middleman.' },
@@ -382,14 +353,14 @@ export default function HomePage() {
                 Why builders choose ProtectedPay
               </p>
               <h2 style={{ fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 800, letterSpacing: '-2.5px', lineHeight: 1.05 }}>
-                <span style={{ color: 'var(--foreground)' }}>See where every OKB lands —</span>
+                <span style={{ color: 'var(--foreground)' }}>See where every BOT lands —</span>
                 <br />
                 <span style={{ color: 'var(--foreground-muted)' }}>before it leaves.</span>
               </h2>
             </div>
             <div>
               <p style={{ fontSize: 16, color: 'var(--foreground-muted)', lineHeight: 1.75, marginBottom: 32 }}>
-                On-chain transparency, post-transfer certainty. Every escrow, group payment, and batch transfer is recorded on the X Layer Testnet — visible to anyone, controlled by no one.
+                On-chain transparency, post-transfer certainty. Every escrow, group payment, and batch transfer is recorded on BOT Chain Mainnet — visible to anyone, controlled by no one.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
@@ -434,7 +405,7 @@ export default function HomePage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <img src="/logo.png" alt="ProtectedPay" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover', display: 'block' }} />
               <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>ProtectedPay</span>
-              <span style={{ fontSize: 13, color: 'var(--foreground-subtle)', marginLeft: 4 }}>· EVM · X Layer Testnet</span>
+              <span style={{ fontSize: 13, color: 'var(--foreground-subtle)', marginLeft: 4 }}>· EVM · BOT Chain Mainnet</span>
             </div>
 
             {/* Right — nav links + social icons */}

@@ -16,7 +16,7 @@ import {
   RefreshCw, ExternalLink, Clock, CheckCircle2, Ban, Download, Share2,
 } from 'lucide-react';
 
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 const LINK_COLORS: Record<string, string> = {
   Active:    'var(--primary)',
@@ -114,7 +114,7 @@ function LinkCard({ link, onCancel, onQR }: {
   };
 
   const handleDownload = () => {
-    const EXPLORER = 'https://web3.okx.com/explorer/x-layer-testnet';
+    const EXPLORER = 'https://scan.botchain.ai';
     generateInvoicePDF({
       invoiceId:        link.linkId,
       description:      link.description,

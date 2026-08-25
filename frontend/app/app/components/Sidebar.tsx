@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
-import { formatNative, shortAddress, xLayerTestnet, FAUCET_URL } from '../../lib/wagmi';
+import { formatNative, shortAddress, botChainMainnet } from '../../lib/wagmi';
 import {
   Lock, Users, Zap, History, ChevronLeft, ChevronRight,
-  Copy, Check, Home, Sun, Moon, LogOut, Link2, Droplet, ExternalLink,
+  Copy, Check, Home, Sun, Moon, LogOut, Link2,
 } from 'lucide-react';
 
 export type AppTab = 'home' | 'protected' | 'group' | 'batch' | 'history' | 'links';
@@ -47,7 +47,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const nativeSymbol = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+  const nativeSymbol = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
   const navBtn = (tab: AppTab, Icon: React.ElementType, label: string) => {
     const active = activeTab === tab;
@@ -77,13 +77,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         </button>
       </div>
 
-      {/* Network badge (single-chain: X Layer Testnet) */}
+      {/* Network badge (single-chain: BOT Chain Mainnet) */}
       <div style={{ padding: collapsed ? '10px 0' : '10px 12px', borderBottom: '1px solid var(--border)' }}>
         {collapsed ? (
-          <div title={xLayerTestnet.name} style={{ display: 'flex', justifyContent: 'center' }}>
+          <div title={botChainMainnet.name} style={{ display: 'flex', justifyContent: 'center' }}>
             <img
-              src="/chain/xlayer.png"
-              alt="X Layer"
+              src="/chain/bot.png"
+              alt="BOT Chain"
               style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', display: 'block', margin: '2px auto' }}
               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
             />
@@ -95,13 +95,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             background: 'rgba(45,212,191,0.1)',
           }}>
             <img
-              src="/chain/xlayer.png"
-              alt="X Layer"
+              src="/chain/bot.png"
+              alt="BOT Chain"
               style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
             />
             <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'var(--primary)', textAlign: 'left' }}>
-              {xLayerTestnet.name}
+              {botChainMainnet.name}
             </span>
           </div>
         )}
@@ -128,21 +128,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 </button>
               </div>
               {balance && (
-                <div style={{ padding: '7px 10px', borderRadius: 8, background: 'var(--surface-elevated)', border: '1px solid var(--border)', marginBottom: 8 }}>
+                <div style={{ padding: '7px 10px', borderRadius: 8, background: 'var(--surface-elevated)', border: '1px solid var(--border)' }}>
                   <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: 'var(--foreground-subtle)', textTransform: 'uppercase', marginBottom: 2 }}>Balance</p>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', letterSpacing: '-0.3px' }}>
                     {formatNative(balance.value)} {nativeSymbol}
                   </p>
                 </div>
               )}
-              <a href={FAUCET_URL} target="_blank" rel="noopener noreferrer"
-                title="Get free testnet OKB from the official X Layer faucet"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '7px 10px', borderRadius: 8, background: 'var(--surface-elevated)', border: '1px solid var(--border)', color: 'var(--foreground-muted)', fontSize: 11, fontWeight: 600, textDecoration: 'none', transition: 'all 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--primary)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--primary)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--foreground-muted)'; }}
-              >
-                <Droplet size={12} /> Get Test Funds <ExternalLink size={10} />
-              </a>
             </>
           )}
         </div>

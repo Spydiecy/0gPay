@@ -3,33 +3,33 @@ import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { createPublicClient, http, formatEther } from 'viem';
 
-const NATIVE_SYMBOL = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+const NATIVE_SYMBOL = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 // ── Chain definition ──────────────────────────────────────────────────────────
-const xLayerTestnet = {
-  id: 1952,
-  name: 'X Layer Testnet',
-  nativeCurrency: { name: 'OKB', symbol: 'OKB', decimals: 18 },
-  rpcUrls: { default: { http: ['https://testrpc.xlayer.tech/terigon'] } },
+const botChainMainnet = {
+  id: 677,
+  name: 'BOT Chain Mainnet',
+  nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.botchain.ai'] } },
 } as const;
 
 // ── Contract address (single-chain deployment) ────────────────────────────────
 const CONTRACT_ADDRESSES: Record<number, `0x${string}`> = {
-  1952: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0xCa36dD890F987EDcE1D6D7C74Fb9df627c216BF6') as `0x${string}`,
+  677: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x87C97999e9b6D295A8eAc677d8872F6f86666A2D') as `0x${string}`,
 };
 
 // ── Explorer URLs per chain ───────────────────────────────────────────────────
 const EXPLORER_URLS: Record<number, string> = {
-  1952: 'https://web3.okx.com/explorer/x-layer-testnet',
+  677: 'https://scan.botchain.ai',
 };
 
 // ── Build a chain-specific public client ──────────────────────────────────────
 function getClient(_chainId: number) {
-  return createPublicClient({ chain: xLayerTestnet as never, transport: http('https://testrpc.xlayer.tech/terigon') });
+  return createPublicClient({ chain: botChainMainnet as never, transport: http('https://rpc.botchain.ai') });
 }
 
 function getNetworkName(_chainId: number) {
-  return 'X Layer Testnet';
+  return 'BOT Chain Mainnet';
 }
 
 const ABI = [
@@ -50,12 +50,12 @@ const LINK_STATUS   = ['Active', 'Paid', 'Cancelled'];
 const mistral = createMistral({ apiKey: process.env.MISTRAL_API_KEY });
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are PayBot, the friendly AI assistant built into ProtectedPay — a trustless on-chain payment platform on the X Layer Testnet (EVM, Chain ID 1952, native gas token: ${NATIVE_SYMBOL}).
+const SYSTEM_PROMPT = `You are PayBot, the friendly AI assistant built into ProtectedPay — a trustless on-chain payment platform on BOT Chain Mainnet (EVM, Chain ID 677, native gas token: ${NATIVE_SYMBOL}).
 
 ## Personality
 You ONLY discuss ProtectedPay and crypto payments. You are NOT a general-purpose AI.
 When asked about anything unrelated (weather, sports, news, recipes, general coding, etc.) give a short, warm, witty redirect back to ProtectedPay. Examples:
-- Weather → "Not sure about the weather, but ${NATIVE_SYMBOL} transfers on X Layer are flowing smoothly! Want to send some?"
+- Weather → "Not sure about the weather, but ${NATIVE_SYMBOL} transfers on BOT Chain are flowing smoothly! Want to send some?"
 - Sports → "I'm more of a payments guy! How about sending a batch payment to your team after the game?"
 - Crypto prices → "I don't track prices, but I can check your ${NATIVE_SYMBOL} balance on-chain — want me to?"
 Never flatly refuse. Always steer back to ProtectedPay.
@@ -64,12 +64,12 @@ Never flatly refuse. Always steer back to ProtectedPay.
 When the user asks you to send, transfer, create, register, claim, refund, or do anything transaction-related — you MUST call the appropriate build tool immediately. Do NOT just explain steps. The build tool will produce a clickable wallet button in the UI.
 
 Examples of when to call tools immediately:
-- User says "send 0.01 OKB to @test" → call buildEscrow immediately
-- User says "send 5 USDT to @test" or "escrow 10 USDC to @alice" → call buildTokenEscrow immediately (pass "USDT"/"USDC"/"USDG" as tokenAddress)
+- User says "send 0.01 ${NATIVE_SYMBOL} to @test" → call buildEscrow immediately
+- User says "send 5 USDT to @test" or "escrow 10 USDC to @alice" → call buildTokenEscrow immediately (pass the ERC-20 contract address as tokenAddress — ask the user for it if they haven't given one, since no tokens are preset yet)
 - User says "create a group payment" → call buildGroupPayment immediately
 - User says "register @myname" → call buildRegisterUsername immediately
 - User says "send batch to these addresses" → call buildBatchTransfer immediately
-- User says "create a payment link for 1 OKB" → call buildPaymentLink immediately
+- User says "create a payment link for 1 ${NATIVE_SYMBOL}" → call buildPaymentLink immediately
 - User says "claim escrow #5" → call claimEscrow with escrowId="5" immediately
 - User says "refund escrow #3" → call refundEscrow with escrowId="3" immediately
 - User says "claim my escrow" (no ID) → FIRST call getEscrowHistory to find pending escrows, THEN call claimEscrow with the correct ID
@@ -87,7 +87,6 @@ Never say "here are the steps" when you can call a tool. Call the tool FIRST —
 - NEVER invent external URLs like "https://protectedpay.xyz/anything"
 - All navigation is within the ProtectedPay dashboard sidebar: **Protected Transfer**, **Group Split**, **Batch Payment**, **Payment Links**, **History**
 - Always say: "Go to the **Protected Transfer** tab in the dashboard" — never a URL
-- If the user needs test funds, tell them to click **Get Test Funds** in the sidebar, or visit the X Layer faucet at https://web3.okx.com/xlayer/faucet/xlayerfaucet
 
 ## Features
 
@@ -97,7 +96,7 @@ Steps: **Protected Transfer** tab → recipient (address or @username) → amoun
 Recipient: **Claim** button. Sender: **Refund** button.
 
 ### Protected Token Transfer (ERC-20 Escrow)
-Same as above but for any ERC-20 token. **USDT**, **USDC** and **USDG** are preset — no address needed, just say the symbol. You can trigger this directly from chat: calling buildTokenEscrow shows two wallet buttons in sequence — **Approve** then **Create Token Transfer**. It's also available manually in the UI: **Protected Transfer** tab → switch to **ERC-20 Token** → pick a preset or **Custom Token Address**.
+Same as above but for any ERC-20 token. No tokens are preset yet — paste the token's contract address and use the built-in lookup to fetch its name, symbol and decimals automatically. You can trigger this directly from chat: calling buildTokenEscrow shows two wallet buttons in sequence — **Approve** then **Create Token Transfer**. It's also available manually in the UI: **Protected Transfer** tab → switch to **ERC-20 Token** → paste the token address → **Lookup**.
 
 ### Group Split Payment
 Multiple people split a payment equally to one recipient. Creator pays their share upfront, others join by Group ID.
@@ -147,10 +146,10 @@ Active network: {NETWORK_PLACEHOLDER}`;
 export async function POST(req: Request) {
   const { messages, walletAddress, chainId } = await req.json();
 
-  // Resolve chain-specific values — default to testnet if not provided
-  const activeChainId = typeof chainId === 'number' ? chainId : 1952;
-  const CONTRACT_ADDRESS = CONTRACT_ADDRESSES[activeChainId] ?? CONTRACT_ADDRESSES[1952];
-  const EXPLORER = EXPLORER_URLS[activeChainId] ?? EXPLORER_URLS[1952];
+  // Resolve chain-specific values — default to BOT Chain Mainnet if not provided
+  const activeChainId = typeof chainId === 'number' ? chainId : 677;
+  const CONTRACT_ADDRESS = CONTRACT_ADDRESSES[activeChainId] ?? CONTRACT_ADDRESSES[677];
+  const EXPLORER = EXPLORER_URLS[activeChainId] ?? EXPLORER_URLS[677];
   const networkName = getNetworkName(activeChainId);
   const publicClient = getClient(activeChainId);
 
@@ -258,7 +257,7 @@ export async function POST(req: Request) {
       }),
 
       buildEscrow: tool({
-        description: 'ALWAYS call this tool when user wants to send OKB to someone as a protected transfer. Resolves @username to address and triggers the wallet confirmation button in the UI.',
+        description: `ALWAYS call this tool when user wants to send ${NATIVE_SYMBOL} to someone as a protected transfer. Resolves @username to address and triggers the wallet confirmation button in the UI.`,
         parameters: z.object({ recipient: z.string(), amount: z.string(), remarks: z.string() }),
         execute: async ({ recipient, amount, remarks }) => {
           let addr = recipient;
@@ -289,7 +288,7 @@ export async function POST(req: Request) {
       }),
 
       buildBatchTransfer: tool({
-        description: 'ALWAYS call this when user wants to batch send OKB to multiple addresses. Resolves @usernames and triggers the wallet button.',
+        description: `ALWAYS call this when user wants to batch send ${NATIVE_SYMBOL} to multiple addresses. Resolves @usernames and triggers the wallet button.`,
         parameters: z.object({
           recipients: z.array(z.object({ address: z.string(), amount: z.string() })),
           remarks: z.string(),
@@ -310,9 +309,9 @@ export async function POST(req: Request) {
       }),
 
       buildTokenEscrow: tool({
-        description: 'ALWAYS call this when the user wants to send/escrow an ERC-20 token (USDT, USDC, USDG, or a custom token) to someone. Resolves @username, resolves the token symbol to its contract address, reads its decimals, and triggers a two-step wallet flow (Approve then Create) directly in the chat UI. USDT, USDC and USDG are preset tokens — pass "USDT", "USDC" or "USDG" as tokenAddress (or the symbol name) instead of asking the user for a contract address. Only ask for a raw 0x address if the user wants a different, unlisted token.',
+        description: 'ALWAYS call this when the user wants to send/escrow an ERC-20 token to someone. No tokens are preset yet, so a real 0x contract address is required — ask the user for it if they only gave a symbol like "USDT" or "USDC". Resolves @username, reads the token\'s decimals and symbol on-chain, and triggers a two-step wallet flow (Approve then Create) directly in the chat UI.',
         parameters: z.object({
-          tokenAddress: z.string().describe('ERC-20 token contract address, OR the symbol "USDT" / "USDC" / "USDG" for the preset tokens'),
+          tokenAddress: z.string().describe('ERC-20 token contract address (0x...)'),
           recipient: z.string().describe('Recipient address or @username'),
           amount: z.string().describe('Token amount'),
           remarks: z.string(),
@@ -325,36 +324,27 @@ export async function POST(req: Request) {
             if (!resolved || resolved === '0x0000000000000000000000000000000000000000') return { error: `@${uname} not found` };
             addr = resolved;
           }
-          const PRESETS: Record<string, { address: string; decimals: number }> = {
-            USDT: { address: '0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c', decimals: 6 },
-            USDC: { address: '0xcB8BF24c6cE16Ad21D707c9505421a17f2bec79D', decimals: 6 },
-            USDG: { address: '0xA78E2baaBaf5c4f36b7Fc394725Deb68D332EeC1', decimals: 6 },
-          };
-          const presetSymbol = tokenAddress.toUpperCase();
-          const preset = PRESETS[presetSymbol];
-          const resolvedTokenAddress = preset ? preset.address : tokenAddress;
+          const resolvedTokenAddress = tokenAddress;
 
           if (!resolvedTokenAddress.startsWith('0x') || resolvedTokenAddress.length !== 42) {
-            return { error: `"${tokenAddress}" is not a valid token symbol or contract address` };
+            return { error: `"${tokenAddress}" is not a valid ERC-20 contract address. Ask the user for the token's 0x contract address.` };
           }
 
-          let decimals = preset?.decimals;
-          let symbol = preset ? presetSymbol : undefined;
-          if (decimals === undefined) {
-            try {
-              const ERC20_META_ABI = [
-                { name: 'decimals', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'uint8' }] },
-                { name: 'symbol',   type: 'function', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'string' }] },
-              ] as const;
-              const [dec, sym] = await Promise.all([
-                publicClient.readContract({ address: resolvedTokenAddress as `0x${string}`, abi: ERC20_META_ABI, functionName: 'decimals' }),
-                publicClient.readContract({ address: resolvedTokenAddress as `0x${string}`, abi: ERC20_META_ABI, functionName: 'symbol' }),
-              ]);
-              decimals = Number(dec);
-              symbol = sym as string;
-            } catch {
-              return { error: `Could not read token at ${resolvedTokenAddress} — check the address` };
-            }
+          let decimals: number;
+          let symbol: string;
+          try {
+            const ERC20_META_ABI = [
+              { name: 'decimals', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'uint8' }] },
+              { name: 'symbol',   type: 'function', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'string' }] },
+            ] as const;
+            const [dec, sym] = await Promise.all([
+              publicClient.readContract({ address: resolvedTokenAddress as `0x${string}`, abi: ERC20_META_ABI, functionName: 'decimals' }),
+              publicClient.readContract({ address: resolvedTokenAddress as `0x${string}`, abi: ERC20_META_ABI, functionName: 'symbol' }),
+            ]);
+            decimals = Number(dec);
+            symbol = sym as string;
+          } catch {
+            return { error: `Could not read token at ${resolvedTokenAddress} — check the address` };
           }
 
           return {

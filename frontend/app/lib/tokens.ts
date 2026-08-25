@@ -1,10 +1,10 @@
 /**
- * Preset ERC-20 tokens available on the X Layer Testnet.
+ * ProtectedPay — known/preset ERC-20 tokens on BOT Chain Mainnet.
  *
- * Single source of truth for known token metadata (symbol, decimals, logo) so
- * every page — Protected Transfer, History, Dashboard — renders the same
- * logo and decimals for USDT / USDC / USDG instead of falling back to a
- * generic coin icon or assuming 18 decimals.
+ * Currently empty: no tokens are pre-added. Users pick any ERC-20 token via
+ * the token lookup (paste a contract address) available on the Protected
+ * Transfer page. Preset tokens can be added back here later — `usdc.png`
+ * and `usdt.png` logos are already in `public/token/` and ready to use.
  */
 
 export interface PresetToken {
@@ -16,11 +16,7 @@ export interface PresetToken {
   logo: string;
 }
 
-export const PRESET_TOKENS: PresetToken[] = [
-  { symbol: 'USDT', label: 'USDT', name: 'Tether USD',   address: '0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c', decimals: 6, logo: '/token/usdt.png' },
-  { symbol: 'USDC', label: 'USDC', name: 'USD Coin',      address: '0xcB8BF24c6cE16Ad21D707c9505421a17f2bec79D', decimals: 6, logo: '/token/usdc.png' },
-  { symbol: 'USDG', label: 'USDG', name: 'Global Dollar', address: '0xA78E2baaBaf5c4f36b7Fc394725Deb68D332EeC1', decimals: 6, logo: '/token/usdg.png' },
-];
+export const PRESET_TOKENS: PresetToken[] = [];
 
 /** Lookup a preset token by its contract address (case-insensitive). */
 export function getKnownToken(address?: string | null): PresetToken | undefined {

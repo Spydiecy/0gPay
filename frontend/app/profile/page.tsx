@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 
 type HistoryTab = 'all' | 'protected' | 'group' | 'batch' | 'links';
-const NATIVE   = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
-const EXPLORER = 'https://web3.okx.com/explorer/x-layer-testnet';
+const NATIVE   = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
+const EXPLORER = 'https://scan.botchain.ai';
 
 function fmtDate(ts: string | undefined) {
   if (!ts || ts === '0') return null;

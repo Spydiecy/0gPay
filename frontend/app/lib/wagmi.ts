@@ -11,40 +11,39 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import type { Chain } from 'wagmi/chains';
 
-// ── X Layer Testnet ────────────────────────────────────────────────────────────
-export const xLayerTestnet = {
-  id: 1952,
-  name: 'X Layer Testnet',
+// ── BOT Chain Mainnet ──────────────────────────────────────────────────────────
+export const botChainMainnet = {
+  id: 677,
+  name: 'BOT Chain Mainnet',
   nativeCurrency: {
-    name: 'OKB',
-    symbol: 'OKB',
+    name: 'BOT',
+    symbol: 'BOT',
     decimals: 18,
   },
   rpcUrls: {
-    default: { http: ['https://testrpc.xlayer.tech/terigon'] },
-    public:  { http: ['https://xlayertestrpc.okx.com/terigon'] },
+    default: { http: ['https://rpc.botchain.ai'] },
   },
   blockExplorers: {
     default: {
-      name: 'X Layer Testnet Explorer',
-      url: 'https://web3.okx.com/explorer/x-layer-testnet',
+      name: 'BOT Chain Explorer',
+      url: 'https://scan.botchain.ai',
     },
   },
-  testnet: true,
+  testnet: false,
 } as const satisfies Chain;
 
 // ── Contract address ──────────────────────────────────────────────────────────
 export const CONTRACT_ADDRESS = (
-  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0xCa36dD890F987EDcE1D6D7C74Fb9df627c216BF6'
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x87C97999e9b6D295A8eAc677d8872F6f86666A2D'
 ) as `0x${string}`;
 
 // Single-chain deployment — kept as a map for backward-compatible call sites.
 export const CONTRACT_ADDRESSES: Record<number, `0x${string}`> = {
-  [xLayerTestnet.id]: CONTRACT_ADDRESS,
+  [botChainMainnet.id]: CONTRACT_ADDRESS,
 };
 
 export function getContractAddress(chainId?: number): `0x${string}` {
-  return CONTRACT_ADDRESSES[chainId ?? xLayerTestnet.id] ?? CONTRACT_ADDRESS;
+  return CONTRACT_ADDRESSES[chainId ?? botChainMainnet.id] ?? CONTRACT_ADDRESS;
 }
 
 // ── WalletConnect project ID ──────────────────────────────────────────────────
@@ -78,24 +77,24 @@ const connectors = WC_PROJECT_ID
 
 // ── Wagmi config ──────────────────────────────────────────────────────────────
 export const wagmiConfig = createConfig({
-  chains: [xLayerTestnet],
+  chains: [botChainMainnet],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   connectors: connectors as any,
   transports: {
-    [xLayerTestnet.id]: http('https://testrpc.xlayer.tech/terigon'),
+    [botChainMainnet.id]: http('https://rpc.botchain.ai'),
   },
   ssr: true,
 });
 
 // ── Explorer URLs ──────────────────────────────────────────────────────────────
-export const EXPLORER_URL = xLayerTestnet.blockExplorers.default.url;
+export const EXPLORER_URL = botChainMainnet.blockExplorers.default.url;
 
 export const EXPLORER_URLS: Record<number, string> = {
-  [xLayerTestnet.id]: EXPLORER_URL,
+  [botChainMainnet.id]: EXPLORER_URL,
 };
 
 export function getExplorerUrl(chainId?: number): string {
-  return EXPLORER_URLS[chainId ?? xLayerTestnet.id] ?? EXPLORER_URL;
+  return EXPLORER_URLS[chainId ?? botChainMainnet.id] ?? EXPLORER_URL;
 }
 
 export function explorerTx(hash: string, chainId?: number): string {
@@ -107,9 +106,6 @@ export function explorerAddress(addr: string, chainId?: number): string {
   const base = getExplorerUrl(chainId);
   return `${base}/address/${addr}`;
 }
-
-// ── Faucet ─────────────────────────────────────────────────────────────────────
-export const FAUCET_URL = 'https://web3.okx.com/xlayer/faucet/xlayerfaucet';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 export function formatNative(wei: bigint, decimals = 4): string {

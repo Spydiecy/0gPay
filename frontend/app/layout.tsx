@@ -5,8 +5,8 @@ import Navbar from './components/Navbar';
 import SmoothScroll from './components/SmoothScroll';
 
 export const metadata: Metadata = {
-  title: 'ProtectedPay — Trustless Payments on X Layer',
-  description: 'Protected transfers, group splits, and batch payments secured by EVM smart contracts on the X Layer Testnet.',
+  title: 'ProtectedPay — Trustless Payments on BOT Chain',
+  description: 'Protected transfers, group splits, and batch payments secured by EVM smart contracts on BOT Chain Mainnet.',
   icons: {
     icon: '/logo.png',
     apple: '/logo.png',

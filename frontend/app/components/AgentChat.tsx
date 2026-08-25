@@ -9,6 +9,8 @@ import { PROTECTED_PAY_ABI } from '../lib/abi';
 import { getContractAddress } from '../lib/wagmi';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ChevronDown, Zap, CheckCircle2, Coins } from 'lucide-react';
 
+const NATIVE_SYMBOL = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
+
 interface PendingAction {
   type: 'createEscrow' | 'createGroupPayment' | 'createPaymentLink' | 'batchTransfer' | 
         'claimEscrow' | 'refundEscrow' | 'contributeToGroup' | 'registerUsername' |
@@ -90,13 +92,13 @@ function extractAction(invocations: any[]): PendingAction | null {
     if (inv.toolName === 'buildEscrow' && r.resolvedAddress && r.amount) {
       const wei = (() => { try { return parseEther(r.amount); } catch { return null; } })();
       if (!wei) continue;
-      return { type: 'createEscrow', params: { recipient: r.resolvedAddress, remarks: r.remarks ?? '' }, label: `Send ${r.amount} OKB → ${r.resolvedAddress.slice(0, 8)}…`, value: wei };
+      return { type: 'createEscrow', params: { recipient: r.resolvedAddress, remarks: r.remarks ?? '' }, label: `Send ${r.amount} ${NATIVE_SYMBOL} → ${r.resolvedAddress.slice(0, 8)}…`, value: wei };
     }
     if (inv.toolName === 'buildGroupPayment' && r.resolvedAddress && r.totalAmount) {
       const perWei   = (() => { try { return parseEther(r.perPerson); }   catch { return null; } })();
       const totalWei = (() => { try { return parseEther(r.totalAmount); } catch { return null; } })();
       if (!perWei || !totalWei) continue;
-      return { type: 'createGroupPayment', params: { recipient: r.resolvedAddress, totalAmount: totalWei, participants: r.participants, remarks: r.remarks ?? '' }, label: `Create Group: ${r.totalAmount} OKB ÷ ${r.participants}`, value: perWei };
+      return { type: 'createGroupPayment', params: { recipient: r.resolvedAddress, totalAmount: totalWei, participants: r.participants, remarks: r.remarks ?? '' }, label: `Create Group: ${r.totalAmount} ${NATIVE_SYMBOL} ÷ ${r.participants}`, value: perWei };
     }
     if (inv.toolName === 'buildPaymentLink' && r.description !== undefined) {
       const weiAmt = r.amount === '0' ? 0n : (() => { try { return parseEther(r.amount); } catch { return 0n; } })();
@@ -106,14 +108,14 @@ function extractAction(invocations: any[]): PendingAction | null {
       const addrs   = r.resolvedRecipients.map((x: { address: string }) => x.address);
       const amounts = r.resolvedRecipients.map((x: { amount: string }) => { try { return parseEther(x.amount); } catch { return 0n; } });
       const total   = amounts.reduce((s: bigint, a: bigint) => s + a, 0n);
-      return { type: 'batchTransfer', params: { recipients: addrs, amounts, remarks: r.remarks }, label: `Batch to ${addrs.length} recipients · ${r.total} OKB`, value: total };
+      return { type: 'batchTransfer', params: { recipients: addrs, amounts, remarks: r.remarks }, label: `Batch to ${addrs.length} recipients · ${r.total} ${NATIVE_SYMBOL}`, value: total };
     }
     if (inv.toolName === 'claimEscrow'   && r.escrowId) return { type: 'claimEscrow',   params: { id: r.escrowId },          label: `Claim Escrow #${r.escrowId}`,   value: undefined };
     if (inv.toolName === 'refundEscrow'  && r.escrowId) return { type: 'refundEscrow',  params: { id: r.escrowId },          label: `Refund Escrow #${r.escrowId}`,  value: undefined };
     if (inv.toolName === 'contributeToGroup' && r.groupId) {
       const perWei = r.amountPerPerson && r.amountPerPerson !== '0' ? BigInt(r.amountPerPerson) : undefined;
       if (!perWei) continue; // don't show button if we don't know the amount
-      return { type: 'contributeToGroup', params: { groupId: r.groupId }, label: `Contribute to Group #${r.groupId} · ${r.perPersonDisplay} OKB`, value: perWei };
+      return { type: 'contributeToGroup', params: { groupId: r.groupId }, label: `Contribute to Group #${r.groupId} · ${r.perPersonDisplay} ${NATIVE_SYMBOL}`, value: perWei };
     }
     if (inv.toolName === 'buildRegisterUsername' && r.username) {
       return { type: 'registerUsername', params: { username: r.username }, label: `Register @${r.username}`, value: undefined };
@@ -358,7 +360,7 @@ export default function AgentChat() {
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat({
     api: '/api/agent',
-    body: { walletAddress: address ?? null, chainId: chainId ?? 1952 },
+    body: { walletAddress: address ?? null, chainId: chainId ?? 677 },
     initialMessages: [{
       id: 'welcome',
       role: 'assistant',
@@ -383,8 +385,8 @@ export default function AgentChat() {
 
   const QUICK = [
     'Check my history',
-    'Send 0.5 OKB to @spy as escrow',
-    'Create a payment link for 1 OKB',
+    `Send 0.5 ${NATIVE_SYMBOL} to @spy as escrow`,
+    `Create a payment link for 1 ${NATIVE_SYMBOL}`,
     'How does group split work?',
   ];
 

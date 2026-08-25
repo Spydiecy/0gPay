@@ -24,7 +24,7 @@ const INPUT: React.CSSProperties = {
   border: '1px solid var(--border)', fontSize: 14, outline: 'none', boxSizing: 'border-box',
 };
 
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'OKB';
+const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 // ── Inline expandable contributors for group history cards ───────────────────
 function AddrPill({ address, myAddr, client }: { address: string; myAddr: string; client: ReturnType<typeof usePublicClient> }) {
