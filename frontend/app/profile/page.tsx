@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { formatEther, formatUnits } from 'viem';
 import { useAccount, usePublicClient, useChainId } from 'wagmi';
 import { useHistory, formatPOT, EscrowRecord, GroupRecord, BatchRecord, TokenEscrowRecord, PaymentLinkRecord } from '../hooks/useHistory';
-import { PROTECTED_PAY_ABI, ESCROW_STATUS_LABEL, GROUP_STATUS_LABEL } from '../lib/abi';
+import { OG_PAY_ABI, ESCROW_STATUS_LABEL, GROUP_STATUS_LABEL } from '../lib/abi';
 import { shortAddress } from '../lib/wagmi';
-import { useContractAddress } from '../hooks/useContract';
+import { useContractAddress, useNativeSymbol } from '../hooks/useContract';
 import WalletGuard from '../components/WalletGuard';
 import { getKnownToken } from '../lib/tokens';
 import {
@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 
 type HistoryTab = 'all' | 'protected' | 'group' | 'batch' | 'links';
-const NATIVE   = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
-const EXPLORER = 'https://scan.botchain.ai';
 
 function fmtDate(ts: string | undefined) {
   if (!ts || ts === '0') return null;
@@ -40,7 +38,7 @@ function AddrChip({ address, username, client, contractAddress }: {
     setResolved(true);
     client.readContract({
       address: contractAddress,
-      abi: PROTECTED_PAY_ABI,
+      abi: OG_PAY_ABI,
       functionName: 'getUser',
       args: [address as `0x${string}`],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,6 +79,7 @@ function BatchDetail({ b, client, contractAddress }: {
   client: ReturnType<typeof usePublicClient>;
   contractAddress: `0x${string}`;
 }) {
+  const NATIVE = useNativeSymbol();
   const [open,       setOpen]       = useState(false);
   const [recipients, setRecipients] = useState<{ account: string; amount: bigint }[] | null>(null);
   const [fetching,   setFetching]   = useState(false);
@@ -94,7 +93,7 @@ function BatchDetail({ b, client, contractAddress }: {
         Array.from({ length: count }, (_, i) =>
           client?.readContract({
             address: contractAddress,
-            abi: PROTECTED_PAY_ABI,
+            abi: OG_PAY_ABI,
             functionName: 'getBatchRecipient',
             args: [BigInt(b.id), i as unknown as number],
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -196,7 +195,7 @@ function GroupDetail({ g, myAddr, client, contractAddress }: {
     try {
       const addrs = await client.readContract({
         address: contractAddress,
-        abi: PROTECTED_PAY_ABI,
+        abi: OG_PAY_ABI,
         functionName: 'getGroupContributors',
         args: [BigInt(g.id)],
       }) as string[];
@@ -353,7 +352,7 @@ function HistoryContent() {
     <div style={{ padding: '32px 36px', height: '100%', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: 6 }}>ProtectedPay</p>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: 6 }}>OGPay</p>
           <h1 style={{ fontSize: 32, fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-1px' }}>Transaction History</h1>
           <p style={{ fontSize: 14, color: 'var(--foreground-muted)', marginTop: 4 }}>All your on-chain activity in one place</p>
         </div>

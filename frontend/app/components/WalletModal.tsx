@@ -3,7 +3,8 @@
 import { useAccount, useDisconnect, useChainId, useSwitchChain } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { X, Wallet, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { botChainMainnet, shortAddress } from '../lib/wagmi';
+import { shortAddress, ogGalileoTestnet } from '../lib/wagmi';
+import { SUPPORTED_CHAINS, isSupportedChain } from '../lib/chains';
 
 interface WalletModalProps {
   onClose: () => void;
@@ -16,7 +17,7 @@ export default function WalletModal({ onClose }: WalletModalProps) {
   const chainId = useChainId();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
 
-  const isWrongNetwork = isConnected && chainId !== botChainMainnet.id;
+  const isWrongNetwork = isConnected && !isSupportedChain(chainId);
 
   const handleConnect = () => {
     onClose();
@@ -53,7 +54,7 @@ export default function WalletModal({ onClose }: WalletModalProps) {
             borderBottom: '1px solid var(--border)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <img src="/logo.png" alt="ProtectedPay"
+              <img src="/logo.png" alt="OGPay"
                 style={{ width: 22, height: 22, borderRadius: 6, objectFit: 'cover' }}
                 onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
@@ -67,7 +68,7 @@ export default function WalletModal({ onClose }: WalletModalProps) {
                 color: 'var(--primary)',
                 border: '1px solid rgba(45,212,191,0.25)',
               }}>
-                BOT Chain Mainnet
+                0G Galileo Testnet
               </span>
             </div>
             <button onClick={onClose} style={{
@@ -93,10 +94,10 @@ export default function WalletModal({ onClose }: WalletModalProps) {
                 <AlertCircle size={16} color="var(--warning)" style={{ flexShrink: 0, marginTop: 1 }} />
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--warning)', marginBottom: 8 }}>
-                    Wrong network — switch to BOT Chain Mainnet
+                    Wrong network — switch to 0G Galileo Testnet
                   </p>
                   <button
-                    onClick={() => switchChain({ chainId: botChainMainnet.id })}
+                    onClick={() => switchChain({ chainId: ogGalileoTestnet.id })}
                     disabled={isSwitching}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 6,
@@ -106,7 +107,7 @@ export default function WalletModal({ onClose }: WalletModalProps) {
                     }}
                   >
                     {isSwitching && <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} />}
-                    Switch to BOT Chain Mainnet
+                    Switch to 0G Galileo Testnet
                   </button>
                 </div>
               </div>
@@ -152,7 +153,7 @@ export default function WalletModal({ onClose }: WalletModalProps) {
               /* Not connected */
               <div>
                 <p style={{ fontSize: 14, color: 'var(--foreground-muted)', marginBottom: 20, lineHeight: 1.65 }}>
-                  Connect your EVM wallet to use ProtectedPay on BOT Chain Mainnet. Supports MetaMask, Rainbow, Coinbase Wallet, WalletConnect, and more.
+                  Connect your EVM wallet to use OGPay on 0G Galileo Testnet. Supports MetaMask, Rainbow, Coinbase Wallet, WalletConnect, and more.
                 </p>
                 <button
                   onClick={handleConnect}
@@ -167,8 +168,8 @@ export default function WalletModal({ onClose }: WalletModalProps) {
                   <Wallet size={17} /> Choose Wallet
                 </button>
                 <p style={{ fontSize: 12, color: 'var(--foreground-subtle)', textAlign: 'center' }}>
-                  New to BOT Chain?{' '}
-                  <a href="https://scan.botchain.ai" target="_blank" rel="noopener noreferrer"
+                  New to 0G Chain?{' '}
+                  <a href="https://chainscan-galileo.0g.ai" target="_blank" rel="noopener noreferrer"
                     style={{ color: 'var(--primary)', textDecoration: 'none' }}>
                     View explorer ↗
                   </a>

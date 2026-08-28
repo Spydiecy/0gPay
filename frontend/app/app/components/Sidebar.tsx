@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
-import { formatNative, shortAddress, botChainMainnet } from '../../lib/wagmi';
+import { useChainId, useSwitchChain } from 'wagmi';
+import { formatNative, shortAddress } from '../../lib/wagmi';
+import { SUPPORTED_CHAINS, getChainConfig } from '../../lib/chains';
 import {
   Lock, Users, Zap, History, ChevronLeft, ChevronRight,
-  Copy, Check, Home, Sun, Moon, LogOut, Link2,
+  Copy, Check, Home, Sun, Moon, LogOut, Link2, ChevronsUpDown,
 } from 'lucide-react';
 
 export type AppTab = 'home' | 'protected' | 'group' | 'batch' | 'history' | 'links';
@@ -30,10 +32,14 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const { disconnect }         = useDisconnect();
   const { theme, setTheme }    = useTheme();
   const { data: balance, refetch: refetchBalance } = useBalance({ address });
+  const chainId = useChainId();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
+  const activeChain = getChainConfig(chainId);
 
-  const [collapsed, setCollapsed] = useState(false);
-  const [copied,     setCopied]     = useState(false);
-  const [mounted,    setMounted]    = useState(false);
+  const [collapsed,    setCollapsed]    = useState(false);
+  const [copied,       setCopied]       = useState(false);
+  const [mounted,      setMounted]      = useState(false);
+  const [chainMenuOpen, setChainMenuOpen] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (address) refetchBalance(); }, [address, refetchBalance]);
@@ -47,7 +53,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const nativeSymbol = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
+  const nativeSymbol = activeChain.nativeSymbol;
 
   const navBtn = (tab: AppTab, Icon: React.ElementType, label: string) => {
     const active = activeTab === tab;
@@ -69,40 +75,77 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Logo */}
       <div style={{ padding: collapsed ? '18px 0' : '18px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, overflow: 'hidden' }}>
-          <img src="/logo.png" alt="ProtectedPay" style={{ width: 30, height: 30, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-          {!collapsed && <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Protected<span style={{ color: 'var(--primary)' }}>Pay</span></span>}
+          <img src="/logo.png" alt="OGPay" style={{ width: 30, height: 30, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+          {!collapsed && <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--foreground)', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>OG<span style={{ color: 'var(--primary)' }}>Pay</span></span>}
         </div>
         <button onClick={() => setCollapsed(!collapsed)} style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0, background: 'var(--surface-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--foreground-muted)' }}>
           {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
       </div>
 
-      {/* Network badge (single-chain: BOT Chain Mainnet) */}
-      <div style={{ padding: collapsed ? '10px 0' : '10px 12px', borderBottom: '1px solid var(--border)' }}>
+      {/* Network switcher — one entry today, ready for more chains */}
+      <div style={{ padding: collapsed ? '10px 0' : '10px 12px', borderBottom: '1px solid var(--border)', position: 'relative' }}>
         {collapsed ? (
-          <div title={botChainMainnet.name} style={{ display: 'flex', justifyContent: 'center' }}>
+          <div title={activeChain.chain.name} style={{ display: 'flex', justifyContent: 'center' }}>
             <img
-              src="/chain/bot.png"
-              alt="BOT Chain"
+              src={activeChain.icon}
+              alt={activeChain.chain.name}
               style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', display: 'block', margin: '2px auto' }}
               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
             />
           </div>
         ) : (
-          <div style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-            padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(45,212,191,0.3)',
-            background: 'rgba(45,212,191,0.1)',
-          }}>
+          <button
+            onClick={() => { if (SUPPORTED_CHAINS.length > 1) setChainMenuOpen(o => !o); }}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+              padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(45,212,191,0.3)',
+              background: 'rgba(45,212,191,0.1)', cursor: SUPPORTED_CHAINS.length > 1 ? 'pointer' : 'default',
+            }}
+          >
             <img
-              src="/chain/bot.png"
-              alt="BOT Chain"
+              src={activeChain.icon}
+              alt={activeChain.chain.name}
               style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
             />
             <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'var(--primary)', textAlign: 'left' }}>
-              {botChainMainnet.name}
+              {activeChain.chain.name}
             </span>
+            {SUPPORTED_CHAINS.length > 1 && <ChevronsUpDown size={12} color="var(--primary)" style={{ flexShrink: 0 }} />}
+          </button>
+        )}
+
+        {/* Dropdown — only renders when there's more than one chain to pick from */}
+        {chainMenuOpen && SUPPORTED_CHAINS.length > 1 && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 12, right: 12, marginTop: 4,
+            background: 'var(--surface-card)', border: '1px solid var(--border)',
+            borderRadius: 10, zIndex: 50, overflow: 'hidden',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+          }}>
+            {SUPPORTED_CHAINS.map(c => {
+              const active = c.chain.id === chainId;
+              return (
+                <button
+                  key={c.chain.id}
+                  onClick={() => { if (!active) switchChain({ chainId: c.chain.id }); setChainMenuOpen(false); }}
+                  disabled={isSwitching}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '9px 12px', border: 'none', cursor: 'pointer',
+                    background: active ? 'rgba(45,212,191,0.1)' : 'transparent',
+                  }}
+                  onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-hover)'; }}
+                  onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                >
+                  <img src={c.icon} alt={c.chain.name} style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                    onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                  <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: active ? 'var(--primary)' : 'var(--foreground)', textAlign: 'left' }}>{c.chain.name}</span>
+                  {active && <Check size={12} color="var(--primary)" />}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

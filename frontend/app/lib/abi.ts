@@ -1,4 +1,4 @@
-export const PROTECTED_PAY_ABI = [
+export const OG_PAY_ABI = [
   // ── User Registry ──────────────────────────────────────────────────────────
   {
     name: 'registerUsername',

@@ -3,33 +3,33 @@ import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { createPublicClient, http, formatEther } from 'viem';
 
-const NATIVE_SYMBOL = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
+const NATIVE_SYMBOL = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || '0G';
 
 // ── Chain definition ──────────────────────────────────────────────────────────
-const botChainMainnet = {
-  id: 677,
-  name: 'BOT Chain Mainnet',
-  nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.botchain.ai'] } },
+const ogGalileoTestnet = {
+  id: 16602,
+  name: '0G Galileo Testnet',
+  nativeCurrency: { name: '0G', symbol: '0G', decimals: 18 },
+  rpcUrls: { default: { http: ['https://evmrpc-testnet.0g.ai'] } },
 } as const;
 
 // ── Contract address (single-chain deployment) ────────────────────────────────
 const CONTRACT_ADDRESSES: Record<number, `0x${string}`> = {
-  677: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x87C97999e9b6D295A8eAc677d8872F6f86666A2D') as `0x${string}`,
+  16602: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0xA4F7977Ab2a47a510eAB6b75F8B5AeC09FdED030') as `0x${string}`,
 };
 
 // ── Explorer URLs per chain ───────────────────────────────────────────────────
 const EXPLORER_URLS: Record<number, string> = {
-  677: 'https://scan.botchain.ai',
+  16602: 'https://chainscan-galileo.0g.ai',
 };
 
 // ── Build a chain-specific public client ──────────────────────────────────────
 function getClient(_chainId: number) {
-  return createPublicClient({ chain: botChainMainnet as never, transport: http('https://rpc.botchain.ai') });
+  return createPublicClient({ chain: ogGalileoTestnet as never, transport: http('https://evmrpc-testnet.0g.ai') });
 }
 
 function getNetworkName(_chainId: number) {
-  return 'BOT Chain Mainnet';
+  return '0G Galileo Testnet';
 }
 
 const ABI = [
@@ -50,15 +50,15 @@ const LINK_STATUS   = ['Active', 'Paid', 'Cancelled'];
 const mistral = createMistral({ apiKey: process.env.MISTRAL_API_KEY });
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are PayBot, the friendly AI assistant built into ProtectedPay — a trustless on-chain payment platform on BOT Chain Mainnet (EVM, Chain ID 677, native gas token: ${NATIVE_SYMBOL}).
+const SYSTEM_PROMPT = `You are PayBot, the friendly AI assistant built into OGPay — a trustless on-chain payment platform on 0G Galileo Testnet (EVM, Chain ID 16602, native gas token: ${NATIVE_SYMBOL}).
 
 ## Personality
-You ONLY discuss ProtectedPay and crypto payments. You are NOT a general-purpose AI.
-When asked about anything unrelated (weather, sports, news, recipes, general coding, etc.) give a short, warm, witty redirect back to ProtectedPay. Examples:
-- Weather → "Not sure about the weather, but ${NATIVE_SYMBOL} transfers on BOT Chain are flowing smoothly! Want to send some?"
+You ONLY discuss OGPay and crypto payments. You are NOT a general-purpose AI.
+When asked about anything unrelated (weather, sports, news, recipes, general coding, etc.) give a short, warm, witty redirect back to OGPay. Examples:
+- Weather → "Not sure about the weather, but ${NATIVE_SYMBOL} transfers on 0G Chain are flowing smoothly! Want to send some?"
 - Sports → "I'm more of a payments guy! How about sending a batch payment to your team after the game?"
 - Crypto prices → "I don't track prices, but I can check your ${NATIVE_SYMBOL} balance on-chain — want me to?"
-Never flatly refuse. Always steer back to ProtectedPay.
+Never flatly refuse. Always steer back to OGPay.
 
 ## CRITICAL BEHAVIOR — Always trigger actions directly
 When the user asks you to send, transfer, create, register, claim, refund, or do anything transaction-related — you MUST call the appropriate build tool immediately. Do NOT just explain steps. The build tool will produce a clickable wallet button in the UI.
@@ -84,8 +84,8 @@ Examples of when to call tools immediately:
 Never say "here are the steps" when you can call a tool. Call the tool FIRST — the user can always ask for more info after.
 
 ## Navigation rules — CRITICAL
-- NEVER invent external URLs like "https://protectedpay.xyz/anything"
-- All navigation is within the ProtectedPay dashboard sidebar: **Protected Transfer**, **Group Split**, **Batch Payment**, **Payment Links**, **History**
+- NEVER invent external URLs like "https://ogpay.xyz/anything"
+- All navigation is within the OGPay dashboard sidebar: **Protected Transfer**, **Group Split**, **Batch Payment**, **Payment Links**, **History**
 - Always say: "Go to the **Protected Transfer** tab in the dashboard" — never a URL
 
 ## Features
@@ -146,10 +146,10 @@ Active network: {NETWORK_PLACEHOLDER}`;
 export async function POST(req: Request) {
   const { messages, walletAddress, chainId } = await req.json();
 
-  // Resolve chain-specific values — default to BOT Chain Mainnet if not provided
-  const activeChainId = typeof chainId === 'number' ? chainId : 677;
-  const CONTRACT_ADDRESS = CONTRACT_ADDRESSES[activeChainId] ?? CONTRACT_ADDRESSES[677];
-  const EXPLORER = EXPLORER_URLS[activeChainId] ?? EXPLORER_URLS[677];
+  // Resolve chain-specific values — default to 0G Galileo Testnet if not provided
+  const activeChainId = typeof chainId === 'number' ? chainId : 16602;
+  const CONTRACT_ADDRESS = CONTRACT_ADDRESSES[activeChainId] ?? CONTRACT_ADDRESSES[16602];
+  const EXPLORER = EXPLORER_URLS[activeChainId] ?? EXPLORER_URLS[16602];
   const networkName = getNetworkName(activeChainId);
   const publicClient = getClient(activeChainId);
 

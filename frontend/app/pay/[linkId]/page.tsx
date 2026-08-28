@@ -4,20 +4,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { parseEther, formatEther, createPublicClient, http } from 'viem';
 import { useParams } from 'next/navigation';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { PROTECTED_PAY_ABI } from '../../lib/abi';
-import { shortAddress, botChainMainnet, CONTRACT_ADDRESSES, EXPLORER_URLS } from '../../lib/wagmi';
+import { OG_PAY_ABI } from '../../lib/abi';
+import { shortAddress, ogGalileoTestnet, CONTRACT_ADDRESSES, EXPLORER_URLS, getNativeSymbol } from '../../lib/wagmi';
 import { useContractAddress } from '../../hooks/useContract';
 import Toast, { ToastType } from '../../components/Toast';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { generateInvoicePDF } from '../../lib/invoice';
 import { CheckCircle2, Ban, ArrowRight, ExternalLink, Shield, Copy, Check, Download, Share2 } from 'lucide-react';
 
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
-
 // ── Dedicated read-only client — completely independent of wallet state ────────
 const mainnetClient = createPublicClient({
-  chain: botChainMainnet,
-  transport: http('https://rpc.botchain.ai'),
+  chain: ogGalileoTestnet,
+  transport: http('https://evmrpc-testnet.0g.ai'),
 });
 
 interface LinkData {
@@ -71,9 +69,9 @@ function PageHeader() {
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10, padding: '14px 24px' }}>
       <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-        <img src="/logo.png" alt="ProtectedPay" style={{ width: 26, height: 26, borderRadius: 7, objectFit: 'cover' }} />
+        <img src="/logo.png" alt="OGPay" style={{ width: 26, height: 26, borderRadius: 7, objectFit: 'cover' }} />
         <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--foreground-muted)', letterSpacing: '-0.2px' }}>
-          Protected<span style={{ color: 'var(--primary)' }}>Pay</span>
+          OG<span style={{ color: 'var(--primary)' }}>Pay</span>
         </span>
       </a>
     </div>
@@ -102,6 +100,7 @@ export default function PayPage() {
   const [justPaid,    setJustPaid]    = useState(false); // true if this browser session did the payment
 
   const [detectedChainId, setDetectedChainId] = useState<number | null>(null);
+  const NATIVE = getNativeSymbol(detectedChainId ?? undefined);
 
   const t = (msg: string, type: ToastType) => setToast({ msg, type });
   const { isSuccess, data: receipt } = useWaitForTransactionReceipt({ hash: txHash });
@@ -112,12 +111,12 @@ export default function PayPage() {
     setNotFound(false);
 
     // Read-only client — works even with no wallet connected, on any browser.
-    const chainId = botChainMainnet.id;
+    const chainId = ogGalileoTestnet.id;
     const addr = CONTRACT_ADDRESSES[chainId];
 
     try {
       const data = await mainnetClient.readContract({
-        address: addr, abi: PROTECTED_PAY_ABI,
+        address: addr, abi: OG_PAY_ABI,
         functionName: 'getPaymentLink', args: [linkId as `0x${string}`],
       }) as LinkData;
       if (data && data.creator !== '0x0000000000000000000000000000000000000000') {
@@ -125,7 +124,7 @@ export default function PayPage() {
         setDetectedChainId(chainId);
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const user = await mainnetClient.readContract({ address: addr, abi: PROTECTED_PAY_ABI, functionName: 'getUser', args: [data.creator as `0x${string}`] }) as any;
+          const user = await mainnetClient.readContract({ address: addr, abi: OG_PAY_ABI, functionName: 'getUser', args: [data.creator as `0x${string}`] }) as any;
           if (user?.username) setCreatorName(user.username);
         } catch { /* no username */ }
         setFetching(false);
@@ -160,7 +159,7 @@ export default function PayPage() {
     setLoading(true); t('Submitting…', 'loading');
     try {
       const hash = await writeContractAsync({
-        address: payContractAddress, abi: PROTECTED_PAY_ABI,
+        address: payContractAddress, abi: OG_PAY_ABI,
         functionName: 'payLink', args: [linkId as `0x${string}`, remarks], value,
       });
       setTxHash(hash);
@@ -169,7 +168,7 @@ export default function PayPage() {
   }, [link, linkId, remarks, customAmt, writeContractAsync, isConnected, detectedChainId, contractAddress]);
 
   const handleDownloadInvoice = useCallback((l: LinkData, txH?: string) => {
-    const explorer = detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[botChainMainnet.id];
+    const explorer = detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[ogGalileoTestnet.id];
     const amtDisplay = l.amount === 0n
       ? 'Custom'
       : `${parseFloat(formatEther(l.amount)).toFixed(4)} ${NATIVE}`;
@@ -229,7 +228,7 @@ export default function PayPage() {
             <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--foreground)', marginBottom: 8 }}>Link Not Found</h1>
             <p style={{ fontSize: 13, color: 'var(--foreground-muted)', lineHeight: 1.6, marginBottom: 24 }}>This payment link doesn&apos;t exist or has been removed.</p>
             <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 999, background: 'var(--primary)', color: 'var(--primary-fg)', textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
-              Go to ProtectedPay
+              Go to OGPay
             </a>
           </div>
         </div>
@@ -291,7 +290,7 @@ export default function PayPage() {
               {effectiveTxHash && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12, marginTop: 4 }}>
                   <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Transaction</span>
-                  <a href={`${detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[botChainMainnet.id]}/tx/${effectiveTxHash}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`${detectedChainId ? EXPLORER_URLS[detectedChainId] : EXPLORER_URLS[ogGalileoTestnet.id]}/tx/${effectiveTxHash}`} target="_blank" rel="noopener noreferrer"
                     style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontFamily: 'monospace', color: 'var(--primary)', textDecoration: 'none' }}>
                     {shortAddress(effectiveTxHash)} <ExternalLink size={10} />
                   </a>
@@ -317,7 +316,7 @@ export default function PayPage() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <Shield size={11} color="var(--foreground-subtle)" />
-              <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by ProtectedPay · BOT Chain Mainnet</span>
+              <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by OGPay · 0G Galileo Testnet</span>
             </div>
           </div>
         </div>
@@ -433,7 +432,7 @@ export default function PayPage() {
           {/* Trust line */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Shield size={11} color="var(--foreground-subtle)" />
-            <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by ProtectedPay · BOT Chain Mainnet</span>
+            <span style={{ fontSize: 11, color: 'var(--foreground-subtle)' }}>Secured by OGPay · 0G Galileo Testnet</span>
           </div>
         </div>
       </div>

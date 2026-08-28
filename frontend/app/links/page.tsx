@@ -4,9 +4,9 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { parseEther, formatEther } from 'viem';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { useHistory, formatPOT, PaymentLinkRecord } from '../hooks/useHistory';
-import { PROTECTED_PAY_ABI } from '../lib/abi';
+import { OG_PAY_ABI } from '../lib/abi';
 import { shortAddress } from '../lib/wagmi';
-import { useContractAddress } from '../hooks/useContract';
+import { useContractAddress, useNativeSymbol } from '../hooks/useContract';
 import WalletGuard from '../components/WalletGuard';
 import Toast, { ToastType } from '../components/Toast';
 import QRCode from 'qrcode';
@@ -15,8 +15,6 @@ import {
   Link2, Plus, Copy, Check, QrCode, XCircle,
   RefreshCw, ExternalLink, Clock, CheckCircle2, Ban, Download, Share2,
 } from 'lucide-react';
-
-const NATIVE = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
 
 const LINK_COLORS: Record<string, string> = {
   Active:    'var(--primary)',
@@ -102,6 +100,7 @@ function LinkCard({ link, onCancel, onQR }: {
   onCancel: (id: string) => void;
   onQR: (id: string, desc: string) => void;
 }) {
+  const NATIVE = useNativeSymbol();
   const [copied, setCopied] = useState(false);
   const url = payUrl(link.linkId);
   const isActive = link.status === 'Active';
@@ -114,7 +113,7 @@ function LinkCard({ link, onCancel, onQR }: {
   };
 
   const handleDownload = () => {
-    const EXPLORER = 'https://scan.botchain.ai';
+    const EXPLORER = 'https://chainscan-galileo.0g.ai';
     generateInvoicePDF({
       invoiceId:        link.linkId,
       description:      link.description,
@@ -240,6 +239,7 @@ function LinkCard({ link, onCancel, onQR }: {
 // ── Main content ──────────────────────────────────────────────────────────────
 function LinksContent() {
   const contractAddress = useContractAddress();
+  const NATIVE = useNativeSymbol();
   const chainId = useChainId();
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -267,7 +267,7 @@ function LinksContent() {
     try {
       const weiAmount = anyAmount ? 0n : parseEther(amount);
       const hash = await writeContractAsync({
-        address: contractAddress, abi: PROTECTED_PAY_ABI,
+        address: contractAddress, abi: OG_PAY_ABI,
         functionName: 'createPaymentLink',
         args: [weiAmount, description.trim()],
       });
@@ -281,7 +281,7 @@ function LinksContent() {
     setLoading(true); t('Cancelling…', 'loading');
     try {
       const hash = await writeContractAsync({
-        address: contractAddress, abi: PROTECTED_PAY_ABI,
+        address: contractAddress, abi: OG_PAY_ABI,
         functionName: 'cancelPaymentLink',
         args: [linkId as `0x${string}`],
       });
@@ -308,7 +308,7 @@ function LinksContent() {
   return (
     <div style={{ padding: '32px 36px', height: '100%', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       <div style={{ marginBottom: 24 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: 6 }}>ProtectedPay</p>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: 'var(--primary)', textTransform: 'uppercase', marginBottom: 6 }}>OGPay</p>
         <h1 style={{ fontSize: 32, fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-1px' }}>Payment Links</h1>
         <p style={{ fontSize: 14, color: 'var(--foreground-muted)', marginTop: 4 }}>Create shareable payment links with QR codes</p>
       </div>

@@ -3,15 +3,21 @@
 import { useCallback } from 'react';
 import { useWriteContract, useReadContract, usePublicClient, useAccount, useChainId } from 'wagmi';
 import { parseEther } from 'viem';
-import { PROTECTED_PAY_ABI } from '../lib/abi';
-import { getContractAddress } from '../lib/wagmi';
+import { OG_PAY_ABI } from '../lib/abi';
+import { getContractAddress, getNativeSymbol } from '../lib/wagmi';
 
-export type { PROTECTED_PAY_ABI };
+export type { OG_PAY_ABI };
 
 // ── Chain-aware contract address hook ─────────────────────────────────────────
 export function useContractAddress(): `0x${string}` {
   const chainId = useChainId();
   return getContractAddress(chainId);
+}
+
+// ── Chain-aware native token symbol hook ──────────────────────────────────────
+export function useNativeSymbol(): string {
+  const chainId = useChainId();
+  return getNativeSymbol(chainId);
 }
 
 // ── Write hook — submit a tx and wait for inclusion ───────────────────────────
@@ -30,7 +36,7 @@ export function useTx() {
     try {
       const hash = await writeContractAsync({
         address: contractAddress,
-        abi: PROTECTED_PAY_ABI,
+        abi: OG_PAY_ABI,
         functionName: functionName as never,
         args: args as never,
         value,
@@ -57,7 +63,7 @@ export function useQuery() {
     if (!client) throw new Error('No public client');
     const result = await client.readContract({
       address: contractAddress,
-      abi: PROTECTED_PAY_ABI,
+      abi: OG_PAY_ABI,
       functionName: functionName as never,
       args: args as never,
       account: address,
@@ -71,7 +77,7 @@ export function useContractRead(functionName: string, args: unknown[] = []) {
   const contractAddress = useContractAddress();
   return useReadContract({
     address: contractAddress,
-    abi: PROTECTED_PAY_ABI,
+    abi: OG_PAY_ABI,
     functionName: functionName as never,
     args: args as never,
   });

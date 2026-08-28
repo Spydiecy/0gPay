@@ -5,7 +5,7 @@ import { parseEther, formatEther, formatUnits } from 'viem';
 import { getKnownToken } from '../../lib/tokens';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { useHistory, formatPOT, EscrowRecord, GroupRecord, BatchRecord, TokenEscrowRecord, PaymentLinkRecord } from '../../hooks/useHistory';
-import { PROTECTED_PAY_ABI, ESCROW_STATUS_LABEL } from '../../lib/abi';
+import { OG_PAY_ABI, ESCROW_STATUS_LABEL } from '../../lib/abi';
 import { shortAddress } from '../../lib/wagmi';
 import { useContractAddress } from '../../hooks/useContract';
 import Toast, { ToastType } from '../../components/Toast';
@@ -47,7 +47,7 @@ export default function HomePanel({ onTabChange }: { onTabChange: (tab: AppTab) 
   useEffect(() => {
     if (!address || !client) return;
     setProfile(null);
-    client.readContract({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'getUser', args: [address] })
+    client.readContract({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'getUser', args: [address] })
       .then(d => setProfile(d as UserProfile))
       .catch(() => setProfile(null));
     refresh();
@@ -62,7 +62,7 @@ export default function HomePanel({ onTabChange }: { onTabChange: (tab: AppTab) 
     if (!username || username.length < 3 || username.length > 30) { t('Username must be 3–30 characters', 'error'); return; }
     setLoading(true); t('Submitting…', 'loading');
     try {
-      const hash = await writeContractAsync({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'registerUsername', args: [username] });
+      const hash = await writeContractAsync({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'registerUsername', args: [username] });
       setTxHash(hash);
     } catch (e: unknown) { t(e instanceof Error ? e.message : 'Failed', 'error'); setLoading(false); }
     finally { setLoading(false); }

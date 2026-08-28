@@ -1,5 +1,5 @@
 /**
- * ProtectedPay — known/preset ERC-20 tokens on BOT Chain Mainnet.
+ * OGPay — known/preset ERC-20 tokens on 0G Galileo Testnet.
  *
  * Currently empty: no tokens are pre-added. Users pick any ERC-20 token via
  * the token lookup (paste a contract address) available on the Protected

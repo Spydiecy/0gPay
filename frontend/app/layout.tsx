@@ -5,8 +5,8 @@ import Navbar from './components/Navbar';
 import SmoothScroll from './components/SmoothScroll';
 
 export const metadata: Metadata = {
-  title: 'ProtectedPay — Trustless Payments on BOT Chain',
-  description: 'Protected transfers, group splits, and batch payments secured by EVM smart contracts on BOT Chain Mainnet.',
+  title: 'OGPay — Trustless Payments on 0G Chain',
+  description: 'Protected transfers, group splits, and batch payments secured by EVM smart contracts on 0G Galileo Testnet.',
   icons: {
     icon: '/logo.png',
     apple: '/logo.png',

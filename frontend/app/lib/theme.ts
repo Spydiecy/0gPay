@@ -1,5 +1,5 @@
 /**
- * ProtectedPay — Single source of truth for all design tokens.
+ * OGPay — Single source of truth for all design tokens.
  *
  * Color scheme:
  *   Background  → charcoal/slate (not pure black)

@@ -9,41 +9,20 @@ import {
   rainbowWallet,
   trustWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import type { Chain } from 'wagmi/chains';
+import { SUPPORTED_CHAINS, DEFAULT_CHAIN_ID, getChainConfig, ogGalileoTestnet } from './chains';
 
-// ── BOT Chain Mainnet ──────────────────────────────────────────────────────────
-export const botChainMainnet = {
-  id: 677,
-  name: 'BOT Chain Mainnet',
-  nativeCurrency: {
-    name: 'BOT',
-    symbol: 'BOT',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: { http: ['https://rpc.botchain.ai'] },
-  },
-  blockExplorers: {
-    default: {
-      name: 'BOT Chain Explorer',
-      url: 'https://scan.botchain.ai',
-    },
-  },
-  testnet: false,
-} as const satisfies Chain;
+// Re-exported for existing call sites — ogGalileoTestnet is the default/first chain.
+export { ogGalileoTestnet };
 
-// ── Contract address ──────────────────────────────────────────────────────────
-export const CONTRACT_ADDRESS = (
-  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x87C97999e9b6D295A8eAc677d8872F6f86666A2D'
-) as `0x${string}`;
+// ── Contract address (chain-aware) ────────────────────────────────────────────
+export const CONTRACT_ADDRESS = getChainConfig(DEFAULT_CHAIN_ID).contractAddress;
 
-// Single-chain deployment — kept as a map for backward-compatible call sites.
-export const CONTRACT_ADDRESSES: Record<number, `0x${string}`> = {
-  [botChainMainnet.id]: CONTRACT_ADDRESS,
-};
+export const CONTRACT_ADDRESSES: Record<number, `0x${string}`> = Object.fromEntries(
+  SUPPORTED_CHAINS.map(c => [c.chain.id, c.contractAddress])
+);
 
 export function getContractAddress(chainId?: number): `0x${string}` {
-  return CONTRACT_ADDRESSES[chainId ?? botChainMainnet.id] ?? CONTRACT_ADDRESS;
+  return getChainConfig(chainId).contractAddress;
 }
 
 // ── WalletConnect project ID ──────────────────────────────────────────────────
@@ -69,32 +48,37 @@ const connectors = WC_PROJECT_ID
         },
       ],
       {
-        appName: 'ProtectedPay',
+        appName: 'OGPay',
         projectId: WC_PROJECT_ID,
       }
     )
-  : [injected(), metaMask(), coinbaseWallet({ appName: 'ProtectedPay' })];
+  : [injected(), metaMask(), coinbaseWallet({ appName: 'OGPay' })];
 
-// ── Wagmi config ──────────────────────────────────────────────────────────────
+// ── Wagmi config — built from every chain in the registry ────────────────────
+const chainList = SUPPORTED_CHAINS.map(c => c.chain) as [typeof ogGalileoTestnet, ...typeof ogGalileoTestnet[]];
+
+const transports = Object.fromEntries(
+  SUPPORTED_CHAINS.map(c => [c.chain.id, http(c.chain.rpcUrls.default.http[0])])
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+) as any;
+
 export const wagmiConfig = createConfig({
-  chains: [botChainMainnet],
+  chains: chainList,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   connectors: connectors as any,
-  transports: {
-    [botChainMainnet.id]: http('https://rpc.botchain.ai'),
-  },
+  transports,
   ssr: true,
 });
 
-// ── Explorer URLs ──────────────────────────────────────────────────────────────
-export const EXPLORER_URL = botChainMainnet.blockExplorers.default.url;
+// ── Explorer URLs (chain-aware) ───────────────────────────────────────────────
+export const EXPLORER_URL = getChainConfig(DEFAULT_CHAIN_ID).explorerUrl;
 
-export const EXPLORER_URLS: Record<number, string> = {
-  [botChainMainnet.id]: EXPLORER_URL,
-};
+export const EXPLORER_URLS: Record<number, string> = Object.fromEntries(
+  SUPPORTED_CHAINS.map(c => [c.chain.id, c.explorerUrl])
+);
 
 export function getExplorerUrl(chainId?: number): string {
-  return EXPLORER_URLS[chainId ?? botChainMainnet.id] ?? EXPLORER_URL;
+  return getChainConfig(chainId).explorerUrl;
 }
 
 export function explorerTx(hash: string, chainId?: number): string {
@@ -105,6 +89,11 @@ export function explorerTx(hash: string, chainId?: number): string {
 export function explorerAddress(addr: string, chainId?: number): string {
   const base = getExplorerUrl(chainId);
   return `${base}/address/${addr}`;
+}
+
+// ── Native token helpers (chain-aware) ────────────────────────────────────────
+export function getNativeSymbol(chainId?: number): string {
+  return getChainConfig(chainId).nativeSymbol;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

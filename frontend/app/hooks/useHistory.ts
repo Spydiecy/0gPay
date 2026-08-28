@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useAccount, useBalance, usePublicClient, useChainId } from 'wagmi';
-import { PROTECTED_PAY_ABI, ESCROW_STATUS_LABEL, GROUP_STATUS_LABEL } from '../lib/abi';
-import { getContractAddress, formatNative } from '../lib/wagmi';
+import { OG_PAY_ABI, ESCROW_STATUS_LABEL, GROUP_STATUS_LABEL } from '../lib/abi';
+import { getContractAddress, formatNative, getNativeSymbol } from '../lib/wagmi';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface EscrowRecord {
@@ -69,8 +69,11 @@ export const LINK_STATUS_LABEL: Record<number, string> = {
 };
 
 // ── Format helpers ─────────────────────────────────────────────────────────────
-export function formatPOT(raw: string): string {
-  const symbol = process.env.NEXT_PUBLIC_NATIVE_SYMBOL || 'BOT';
+// Accepts an optional chainId so callers on a multichain page can format
+// amounts using that chain's native symbol. Defaults to the active/default
+// chain's symbol when omitted (fine while only one chain is connected).
+export function formatPOT(raw: string, chainId?: number): string {
+  const symbol = getNativeSymbol(chainId);
   if (!raw || raw === '0') return `0 ${symbol}`;
   try {
     const wei = BigInt(raw.replace(/,/g, ''));
@@ -179,11 +182,11 @@ export function useHistory() {
     try {
       const [bal, rawEscrows, rawTokenEscrows, rawGroups, rawBatches, rawLinks] = await Promise.all([
         refetchBalance(),
-        client.readContract({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'getUserEscrows', args: [address] }),
-        client.readContract({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'getUserTokenEscrows', args: [address] }),
-        client.readContract({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'getUserGroups', args: [address] }),
-        client.readContract({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'getUserBatches', args: [address] }),
-        client.readContract({ address: contractAddress, abi: PROTECTED_PAY_ABI, functionName: 'getUserPaymentLinks', args: [address] }),
+        client.readContract({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'getUserEscrows', args: [address] }),
+        client.readContract({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'getUserTokenEscrows', args: [address] }),
+        client.readContract({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'getUserGroups', args: [address] }),
+        client.readContract({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'getUserBatches', args: [address] }),
+        client.readContract({ address: contractAddress, abi: OG_PAY_ABI, functionName: 'getUserPaymentLinks', args: [address] }),
       ]);
 
       if (bal.data) setBalance(String(bal.data.value));
@@ -213,7 +216,7 @@ export function useHistory() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, address]);
 
-  const formattedBalance = balance ? formatPOT(balance)
+  const formattedBalance = balance ? formatPOT(balance, chainId)
     : balanceData ? `${formatNative(balanceData.value)} ${balanceData.symbol}`
     : null;
 
