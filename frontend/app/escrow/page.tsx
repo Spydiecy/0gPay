@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { parseUnits, formatUnits, parseEther, formatEther } from 'viem';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId, useBalance } from 'wagmi';
-import { useHistory, formatPOT, EscrowRecord, TokenEscrowRecord } from '../hooks/useHistory';
+import { useHistory, formatNativeAmount, EscrowRecord, TokenEscrowRecord } from '../hooks/useHistory';
 import { OG_PAY_ABI, ESCROW_STATUS_LABEL } from '../lib/abi';
 import { shortAddress } from '../lib/wagmi';
 import { useContractAddress } from '../hooks/useContract';
@@ -568,7 +568,7 @@ function EscrowContent() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                      <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.5px' }}>{formatPOT(e.amount)}</span>
+                      <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.5px' }}>{formatNativeAmount(e.amount)}</span>
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(isSender ? e.recipient : e.sender)}
                       style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--foreground-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { parseEther } from 'viem';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
-import { useHistory, formatPOT } from '../hooks/useHistory';
+import { useHistory, formatNativeAmount } from '../hooks/useHistory';
 import { OG_PAY_ABI } from '../lib/abi';
 import { shortAddress } from '../lib/wagmi';
 import { useContractAddress, useNativeSymbol } from '../hooks/useContract';
@@ -103,7 +103,7 @@ function GroupContributorsInline({ groupId, creator, recipient, amountPerPerson,
                   <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--foreground-subtle)', minWidth: 16 }}>{String(i + 1).padStart(2, '0')}</span>
                   <AddrPill address={addr} myAddr={myAddr} client={client} />
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>{formatPOT(amountPerPerson)}</span>
+                <span style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>{formatNativeAmount(amountPerPerson)}</span>
               </div>
             ))}
             {contributors && parseInt(numParticipants) > contributors.length && Array.from({ length: parseInt(numParticipants) - contributors.length }).map((_, i) => (
@@ -311,11 +311,11 @@ function GroupContent() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 13, color: 'var(--foreground-muted)' }}>Total</span>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--foreground)' }}>{formatPOT(contributeGroup.totalAmount.toString())}</span>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--foreground)' }}>{formatNativeAmount(contributeGroup.totalAmount.toString())}</span>
                   </div>
                   <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--surface-card)', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 13, color: 'var(--foreground-muted)' }}>Your contribution</span>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--primary)' }}>{formatPOT(contributeGroup.amountPerPerson.toString())}</span>
+                    <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--primary)' }}>{formatNativeAmount(contributeGroup.amountPerPerson.toString())}</span>
                   </div>
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--foreground-subtle)', marginBottom: 6 }}>
@@ -330,7 +330,7 @@ function GroupContent() {
                       {contributeGroup.creator.toLowerCase() !== (address ?? '').toLowerCase() && (
                         <button onClick={() => handleContribute(contributeGroup.id.toString(), contributeGroup.amountPerPerson)} disabled={loading}
                           style={{ flex: 1, padding: '13px', borderRadius: 999, background: 'var(--primary)', color: 'var(--primary-fg)', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loading ? 0.6 : 1 }}>
-                          <UserPlus size={16} /> Contribute {formatPOT(contributeGroup.amountPerPerson.toString())}
+                          <UserPlus size={16} /> Contribute {formatNativeAmount(contributeGroup.amountPerPerson.toString())}
                         </button>
                       )}
                       {contributeGroup.creator.toLowerCase() === (address ?? '').toLowerCase() && (
@@ -396,8 +396,8 @@ function GroupContent() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--foreground)' }}>{formatPOT(g.totalAmount)}</span>
-                        <span style={{ fontSize: 14, color: 'var(--foreground-muted)' }}>{formatPOT(g.amountPerPerson)} each</span>
+                        <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--foreground)' }}>{formatNativeAmount(g.totalAmount)}</span>
+                        <span style={{ fontSize: 14, color: 'var(--foreground-muted)' }}>{formatNativeAmount(g.amountPerPerson)} each</span>
                       </div>
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--foreground-subtle)', marginBottom: 6 }}>

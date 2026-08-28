@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { parseEther, formatEther } from 'viem';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
-import { useHistory, formatPOT, PaymentLinkRecord } from '../hooks/useHistory';
+import { useHistory, formatNativeAmount, PaymentLinkRecord } from '../hooks/useHistory';
 import { OG_PAY_ABI } from '../lib/abi';
 import { shortAddress } from '../lib/wagmi';
 import { useContractAddress, useNativeSymbol } from '../hooks/useContract';
@@ -156,7 +156,7 @@ function LinkCard({ link, onCancel, onQR }: {
             <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)', marginBottom: 2 }}>{link.description}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {link.amount !== '0' ? (
-                <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--primary)' }}>{formatPOT(link.amount)}</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--primary)' }}>{formatNativeAmount(link.amount)}</span>
               ) : (
                 <span style={{ fontSize: 12, color: 'var(--foreground-muted)', fontStyle: 'italic' }}>any amount</span>
               )}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { formatEther, formatUnits } from 'viem';
 import { useAccount, usePublicClient, useChainId } from 'wagmi';
-import { useHistory, formatPOT, EscrowRecord, GroupRecord, BatchRecord, TokenEscrowRecord, PaymentLinkRecord } from '../hooks/useHistory';
+import { useHistory, formatNativeAmount, EscrowRecord, GroupRecord, BatchRecord, TokenEscrowRecord, PaymentLinkRecord } from '../hooks/useHistory';
 import { OG_PAY_ABI, ESCROW_STATUS_LABEL, GROUP_STATUS_LABEL } from '../lib/abi';
 import { shortAddress } from '../lib/wagmi';
 import { useContractAddress, useNativeSymbol } from '../hooks/useContract';
@@ -116,7 +116,7 @@ function BatchDetail({ b, client, contractAddress }: {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{formatPOT(b.totalAmount)}</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{formatNativeAmount(b.totalAmount)}</span>
             <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', color: 'var(--foreground-muted)' }}>SENT</span>
           </div>
           <p style={{ fontSize: 12, color: 'var(--foreground-muted)' }}>
@@ -221,12 +221,12 @@ function GroupDetail({ g, myAddr, client, contractAddress }: {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{formatPOT(g.totalAmount)}</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{formatNativeAmount(g.totalAmount)}</span>
             <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: isRecipient ? 'rgba(45,212,191,0.12)' : 'rgba(0,0,0,0.06)', color: roleColor }}>{roleLabel}</span>
             <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: sc === 'var(--primary)' ? 'rgba(45,212,191,0.12)' : 'rgba(0,0,0,0.06)', color: sc }}>{statusLabel}</span>
           </div>
           <p style={{ fontSize: 12, color: 'var(--foreground-muted)', marginBottom: 6 }}>
-            {g.contributedCount}/{g.numParticipants} contributors · {formatPOT(g.amountPerPerson)} each
+            {g.contributedCount}/{g.numParticipants} contributors · {formatNativeAmount(g.amountPerPerson)} each
           </p>
           <div style={{ height: 3, borderRadius: 999, background: 'var(--surface-active)', overflow: 'hidden' }}>
             <div style={{ height: '100%', borderRadius: 999, background: 'var(--primary)', width: `${pct}%` }} />
@@ -268,7 +268,7 @@ function GroupDetail({ g, myAddr, client, contractAddress }: {
               <AddrChip address={g.recipient} client={client} contractAddress={contractAddress} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>{formatPOT(g.totalAmount)}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>{formatNativeAmount(g.totalAmount)}</span>
               {g.recipient.toLowerCase() === myAddr && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--foreground-subtle)' }}>YOU</span>}
             </div>
           </div>
@@ -293,7 +293,7 @@ function GroupDetail({ g, myAddr, client, contractAddress }: {
                     <AddrChip address={addr} client={client} contractAddress={contractAddress} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--foreground-muted)' }}>{formatPOT(g.amountPerPerson)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--foreground-muted)' }}>{formatNativeAmount(g.amountPerPerson)}</span>
                     {addr.toLowerCase() === myAddr && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--foreground-subtle)' }}>YOU</span>}
                   </div>
                 </div>
@@ -399,7 +399,7 @@ function HistoryContent() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{formatPOT(e.amount)}</span>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{formatNativeAmount(e.amount)}</span>
                       <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: isSender ? 'rgba(0,0,0,0.06)' : 'rgba(45,212,191,0.12)', color: isSender ? 'var(--foreground-muted)' : 'var(--primary)' }}>
                         {isSender ? 'SENT' : 'RECEIVED'}
                       </span>
@@ -519,7 +519,7 @@ function HistoryContent() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>
-                        {l.amount === '0' ? 'Open amount' : formatPOT(l.amount)}
+                        {l.amount === '0' ? 'Open amount' : formatNativeAmount(l.amount)}
                       </span>
                       <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: statusBg, color: statusColor }}>{l.status}</span>
                     </div>

@@ -72,7 +72,7 @@ export const LINK_STATUS_LABEL: Record<number, string> = {
 // Accepts an optional chainId so callers on a multichain page can format
 // amounts using that chain's native symbol. Defaults to the active/default
 // chain's symbol when omitted (fine while only one chain is connected).
-export function formatPOT(raw: string, chainId?: number): string {
+export function formatNativeAmount(raw: string, chainId?: number): string {
   const symbol = getNativeSymbol(chainId);
   if (!raw || raw === '0') return `0 ${symbol}`;
   try {
@@ -216,7 +216,7 @@ export function useHistory() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, address]);
 
-  const formattedBalance = balance ? formatPOT(balance, chainId)
+  const formattedBalance = balance ? formatNativeAmount(balance, chainId)
     : balanceData ? `${formatNative(balanceData.value)} ${balanceData.symbol}`
     : null;
 

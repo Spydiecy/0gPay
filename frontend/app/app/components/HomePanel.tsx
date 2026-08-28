@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { parseEther, formatEther, formatUnits } from 'viem';
 import { getKnownToken } from '../../lib/tokens';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
-import { useHistory, formatPOT, EscrowRecord, GroupRecord, BatchRecord, TokenEscrowRecord, PaymentLinkRecord } from '../../hooks/useHistory';
+import { useHistory, formatNativeAmount, EscrowRecord, GroupRecord, BatchRecord, TokenEscrowRecord, PaymentLinkRecord } from '../../hooks/useHistory';
 import { OG_PAY_ABI, ESCROW_STATUS_LABEL } from '../../lib/abi';
 import { shortAddress } from '../../lib/wagmi';
 import { useContractAddress } from '../../hooks/useContract';
@@ -203,7 +203,7 @@ export default function HomePanel({ onTabChange }: { onTabChange: (tab: AppTab) 
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>{formatPOT(e.amount)}</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>{formatNativeAmount(e.amount)}</span>
                           <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--foreground-subtle)', padding: '2px 7px', borderRadius: 999, background: 'var(--surface-elevated)', border: '1px solid var(--border)' }}>{statusLabel}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
@@ -228,7 +228,7 @@ export default function HomePanel({ onTabChange }: { onTabChange: (tab: AppTab) 
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>{formatPOT(g.totalAmount)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>{formatNativeAmount(g.totalAmount)}</span>
                         <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--foreground-subtle)', padding: '2px 7px', borderRadius: 999, background: 'var(--surface-elevated)', border: '1px solid var(--border)' }}>{g.status}</span>
                       </div>
                       <p style={{ fontSize: 12, color: 'var(--foreground-muted)', marginTop: 2 }}>Group · {g.contributedCount}/{g.numParticipants} contributors</p>
@@ -278,7 +278,7 @@ export default function HomePanel({ onTabChange }: { onTabChange: (tab: AppTab) 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>
-                          {l.amount === '0' ? 'Open amount' : formatPOT(l.amount)}
+                          {l.amount === '0' ? 'Open amount' : formatNativeAmount(l.amount)}
                         </span>
                         <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 999, background: isPaid ? 'rgba(45,212,191,0.12)' : 'var(--surface-elevated)', border: `1px solid ${isPaid ? 'rgba(45,212,191,0.3)' : 'var(--border)'}`, color: isPaid ? 'var(--primary)' : 'var(--foreground-subtle)', fontWeight: 600 }}>{l.status}</span>
                       </div>
@@ -294,7 +294,7 @@ export default function HomePanel({ onTabChange }: { onTabChange: (tab: AppTab) 
                     <Zap size={16} color="var(--foreground-muted)" />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>{formatPOT(b.totalAmount)}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--foreground)' }}>{formatNativeAmount(b.totalAmount)}</span>
                     <p style={{ fontSize: 12, color: 'var(--foreground-muted)', marginTop: 2 }}>Batch · {b.recipientCount} recipients</p>
                     {b.remarks && <p style={{ fontSize: 11, color: 'var(--foreground-subtle)', marginTop: 2, fontStyle: 'italic' }}>&ldquo;{b.remarks}&rdquo;</p>}
                   </div>

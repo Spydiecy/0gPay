@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { parseEther, formatEther } from 'viem';
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
-import { useHistory, formatPOT, BatchRecord } from '../hooks/useHistory';
+import { useHistory, formatNativeAmount, BatchRecord } from '../hooks/useHistory';
 import { OG_PAY_ABI } from '../lib/abi';
 import { getContractAddress } from '../lib/wagmi';
 import { useContractAddress, useNativeSymbol } from '../hooks/useContract';
@@ -61,7 +61,7 @@ function BatchCard({ b, client, contractAddress }: { b: BatchRecord; client: Ret
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.5px' }}>{formatPOT(b.totalAmount)}</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.5px' }}>{formatNativeAmount(b.totalAmount)}</span>
             <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', color: 'var(--foreground-muted)' }}>SENT</span>
             <span style={{ fontSize: 12, color: 'var(--foreground-subtle)' }}>#{b.id}</span>
           </div>
@@ -114,7 +114,7 @@ function BatchCard({ b, client, contractAddress }: { b: BatchRecord; client: Ret
               ))}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
                 <span style={{ fontSize: 12, color: 'var(--foreground-subtle)' }}>
-                  Total: {formatPOT(b.totalAmount)}
+                  Total: {formatNativeAmount(b.totalAmount)}
                 </span>
               </div>
             </div>
