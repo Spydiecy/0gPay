@@ -2,6 +2,8 @@
 
 **Trustless payment infrastructure on 0G Galileo Testnet. No middlemen. No broken promises.**
 
+**🚀 Live app: [og-pay.vercel.app](https://og-pay.vercel.app/)**
+
 ---
 
 ## The Problem
@@ -160,4 +162,4 @@ MISTRAL_API_KEY=<mistral-api-key>
 
 ---
 
-**[Follow on X](https://x.com/og_pay) · [View on GitHub](https://github.com/Spydiecy/OGPay)**
+**[Live App](https://og-pay.vercel.app/) · [View on GitHub](https://github.com/Spydiecy/0gPay)**

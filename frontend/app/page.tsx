@@ -8,13 +8,6 @@ import {
   ShieldCheck, Sparkles, ChevronDown, Link2, Bot, Coins,
 } from 'lucide-react';
 
-// Official X (Twitter) logo SVG
-const XLogo = ({ size = 15 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
-
 // GitHub logo SVG
 const GithubLogo = ({ size = 15 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -205,7 +198,7 @@ export default function HomePage() {
               >
                 Launch App <ArrowRight size={17} />
               </Link>
-              <a href="https://x.com/og_pay" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/Spydiecy/0gPay" target="_blank" rel="noopener noreferrer"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '14px 28px', borderRadius: 999,
@@ -224,8 +217,8 @@ export default function HomePage() {
                   (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
                 }}
               >
-                <XLogo size={16} />
-                Follow on X
+                <GithubLogo size={16} />
+                View on GitHub
               </a>
             </div>
           </div>
@@ -426,29 +419,8 @@ export default function HomePage() {
               {/* Divider */}
               <span style={{ width: 1, height: 16, background: 'var(--border)' }} />
 
-              {/* X / Twitter */}
-              <a href="https://x.com/og_pay" target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: 34, height: 34, borderRadius: 8,
-                  background: 'var(--surface-elevated)', border: '1px solid var(--border)',
-                  color: 'var(--foreground-muted)', textDecoration: 'none', transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--foreground-muted)';
-                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--foreground)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)';
-                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--foreground-muted)';
-                }}
-                title="Follow on X"
-              >
-                <XLogo size={15} />
-              </a>
-
               {/* GitHub */}
-              <a href="https://github.com/Spydiecy/OGPay" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/Spydiecy/0gPay" target="_blank" rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   width: 34, height: 34, borderRadius: 8,

@@ -160,7 +160,7 @@ export async function POST(req: Request) {
       `${networkName} (Chain ID: ${activeChainId}, Contract: \`${CONTRACT_ADDRESS}\`, Explorer: ${EXPLORER})`);
 
   const result = await streamText({
-    model: mistral('mistral-large-latest'),
+    model: mistral('mistral-small-latest'),
     system,
     messages,
     maxSteps: 5,

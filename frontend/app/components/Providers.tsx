@@ -47,7 +47,7 @@ function RainbowKitWrapper({ children }: { children: React.ReactNode }) {
       initialChain={ogGalileoTestnet.id}
       appInfo={{
         appName: 'OGPay',
-        learnMoreUrl: 'https://github.com/Spydiecy/OGPay',
+        learnMoreUrl: 'https://github.com/Spydiecy/0gPay',
       }}
     >
       {children}
